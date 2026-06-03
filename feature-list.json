@@ -1,0 +1,133 @@
+{
+    "project": "wow-classic-rag",
+    "description": "Self-hosted RAG chatbot answering WoW Classic questions strictly grounded in wowhead content. API-first (frontend later). Configurable persona/style. Local Ollama LLM, pgvector store, multilingual bge-m3 embeddings.",
+    "rules": {
+        "one_feature_at_a_time": true,
+        "require_tests_to_close": true,
+        "require_approved_spec_to_implement": true,
+        "valid_status": ["pending", "spec_ready", "in_progress", "done", "blocked"],
+        "sdd_required_when": "feature has \"sdd\": true"
+    },
+    "stack": {
+        "language": "Python 3.11+",
+        "api": "FastAPI + uvicorn",
+        "embeddings": "BAAI/bge-m3 (multilingual, GPU) via sentence-transformers/FlagEmbedding",
+        "vector_store": "PostgreSQL + pgvector",
+        "llm": "Local only via Ollama (default model: qwen2.5:7b-instruct)",
+        "config": "pydantic-settings + per-persona prompt files",
+        "tests": "pytest"
+    },
+    "principles": [
+        "Grounded-only answers: respond solely from retrieved context.",
+        "Explicit abstention when evidence is insufficient ('no hay evidencia suficiente en los docs').",
+        "Always return source citations (wowhead URLs) with answers.",
+        "Every component behind a swappable interface (LLM, embeddings, vector store, persona).",
+        "No secrets in code; configuration is external."
+    ],
+    "features": [
+        {
+            "id": "f0-project-skeleton",
+            "title": "Project skeleton & configuration system",
+            "status": "spec_ready",
+            "sdd": true,
+            "depends_on": [],
+            "acceptance": "src/ package layout exists; pydantic-settings loads config from env + files; persona/style configs are loadable and swappable; requirements.txt is pinned; init.sh sets up venv, installs deps, runs pytest green."
+        },
+        {
+            "id": "f1-document-model-loader",
+            "title": "Document model + local corpus loader",
+            "status": "pending",
+            "sdd": true,
+            "depends_on": ["f0-project-skeleton"],
+            "acceptance": "A Document schema (text + metadata: source_url, title, section) and a loader that reads a local corpus directory. Real wowhead scraping is deferred to a later feature."
+        },
+        {
+            "id": "f2-chunking",
+            "title": "Chunking pipeline",
+            "status": "pending",
+            "sdd": true,
+            "depends_on": ["f1-document-model-loader"],
+            "acceptance": "Documents split into overlapping chunks preserving metadata and a stable chunk id; configurable size/overlap."
+        },
+        {
+            "id": "f3-embeddings-provider",
+            "title": "Embeddings provider (abstraction + bge-m3)",
+            "status": "pending",
+            "sdd": true,
+            "depends_on": ["f2-chunking"],
+            "acceptance": "EmbeddingProvider interface with a bge-m3 implementation; batch embedding; deterministic dimension; unit-testable via a fake provider."
+        },
+        {
+            "id": "f4-vector-store-pgvector",
+            "title": "Vector store (abstraction + pgvector) and indexing",
+            "status": "pending",
+            "sdd": true,
+            "depends_on": ["f3-embeddings-provider"],
+            "acceptance": "VectorStore interface; pgvector-backed implementation with schema migration; upsert chunks+embeddings+metadata; similarity search; indexing pipeline that ingests a corpus end-to-end."
+        },
+        {
+            "id": "f5-retriever",
+            "title": "Retriever",
+            "status": "pending",
+            "sdd": true,
+            "depends_on": ["f4-vector-store-pgvector"],
+            "acceptance": "Query -> embedding -> top-k retrieval with scores and metadata; configurable k and score threshold used for abstention signaling."
+        },
+        {
+            "id": "f6-prompt-builder",
+            "title": "Prompt builder: persona/style + grounding + citations",
+            "status": "pending",
+            "sdd": true,
+            "depends_on": ["f5-retriever"],
+            "acceptance": "Builds a system+user prompt injecting persona/style (simple, Orc, Troll, ...) and strict grounding instructions; formats retrieved context with citation markers; persona selected by config."
+        },
+        {
+            "id": "f7-llm-provider-ollama",
+            "title": "LLM provider abstraction + Ollama",
+            "status": "pending",
+            "sdd": true,
+            "depends_on": ["f0-project-skeleton"],
+            "acceptance": "LLMProvider interface with an Ollama implementation (local HTTP); model configurable; unit-testable via a fake provider."
+        },
+        {
+            "id": "f8-rag-orchestrator",
+            "title": "RAG orchestrator + abstention logic",
+            "status": "pending",
+            "sdd": true,
+            "depends_on": ["f6-prompt-builder", "f7-llm-provider-ollama"],
+            "acceptance": "Ties retrieve -> prompt -> generate; abstains with a clear message when retrieval is below threshold; returns answer + source citations + metadata (model, persona, scores)."
+        },
+        {
+            "id": "f9-http-api",
+            "title": "HTTP API (FastAPI)",
+            "status": "pending",
+            "sdd": true,
+            "depends_on": ["f8-rag-orchestrator"],
+            "acceptance": "POST /ask returns {answer, sources, abstained, metadata}; health endpoint; CORS configured for a future in-game frontend; persona selectable per-request or via config."
+        },
+        {
+            "id": "f10-evaluation-harness",
+            "title": "Evaluation harness (golden Q&A, faithfulness, abstention)",
+            "status": "pending",
+            "sdd": true,
+            "depends_on": ["f8-rag-orchestrator"],
+            "acceptance": "Golden Q&A dataset; metrics for retrieval hit-rate, answer faithfulness/groundedness, and correct abstention on out-of-corpus questions; runnable as a script/report."
+        },
+        {
+            "id": "f11-wowhead-ingestion",
+            "title": "[LATER] Wowhead ingestion / scraper",
+            "status": "pending",
+            "sdd": true,
+            "depends_on": ["f1-document-model-loader"],
+            "acceptance": "Deferred. Fetches and normalizes wowhead content into the Document schema, respecting robots/rate limits."
+        },
+        {
+            "id": "f12-reranking",
+            "title": "[LATER] Reranking",
+            "status": "pending",
+            "sdd": true,
+            "depends_on": ["f5-retriever"],
+            "acceptance": "Deferred. Cross-encoder reranker to improve top-k ordering before generation."
+        }
+    ]
+}
