@@ -22,7 +22,7 @@ Este repositorio usa SDD. Ver `docs/specs.md`. Toda feature con
 entre ellas:
 
 ```
-pending → [spec_author] → spec_ready → ⏸ HUMANO APRUEBA → in_progress → [implementer → reviewer] → done
+pending → [spec-author] → spec_ready → ⏸ HUMANO APRUEBA → in_progress → [implementer → reviewer] → done
 ```
 
 NUNCA saltes la fase de spec. NUNCA lances al implementer si la feature
@@ -35,8 +35,8 @@ Mira el status de la primera feature no-`done` / no-`blocked` en
 
 ### Caso A — status == `pending`
 
-1. Lanza **1 subagente `spec_author`**.
-2. El `spec_author` redacta
+1. Lanza **1 subagente `spec-author`**.
+2. El `spec-author` redacta
    `specs/<name>/{requirements.md, design.md, tasks.md}` y cambia el status
    a `spec_ready`.
 3. **PARAS**. No lanzas implementer. Tu mensaje al humano:
@@ -79,9 +79,9 @@ del tipo: "resultado en `progress/impl_<name>.md`" o
 
 | Complejidad           | Subagentes (con SDD)                                                 |
 |-----------------------|----------------------------------------------------------------------|
-| Trivial (1 archivo)   | 1 spec_author → ⏸ → 1 implementer                                   |
-| Media (2-3 archivos)  | 1 spec_author → ⏸ → 1 implementer → 1 reviewer                      |
-| Compleja (refactor)   | 2-3 explorers → 1 spec_author → ⏸ → 1 implementer → 1 reviewer      |
+| Trivial (1 archivo)   | 1 spec-author → ⏸ → 1 implementer                                   |
+| Media (2-3 archivos)  | 1 spec-author → ⏸ → 1 implementer → 1 reviewer                      |
+| Compleja (refactor)   | 2-3 explorers → 1 spec-author → ⏸ → 1 implementer → 1 reviewer      |
 | Muy compleja          | Divide en sub-tareas y vuelve a aplicar la tabla                     |
 
 ## Qué NO haces

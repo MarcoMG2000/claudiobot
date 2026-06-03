@@ -1,0 +1,7 @@
+[tool.pytest.ini_options]
+# src layout: make the wowrag package importable without an install step.
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+    "integration: tests requiring live services (pgvector, Ollama); excluded by default",
+]

@@ -1,32 +1,30 @@
 # Sesión actual
 
-- **Feature en curso:** `f0-project-skeleton` (fase: spec)
+- **Feature en curso:** `f1-document-model-loader` (fase: `spec_ready` — esperando aprobación humana)
 - **Inicio:** 2026-06-03
-- **Agente:** leader
+- **Agente:** leader → spec-author
+
+F0 cerrada como `done` (26 tests, init.sh exit 0, reviewer APROBADO). F0 desbloquea F1 y F7; por orden del roadmap se eligió F1.
 
 ## Plan
 
-Arranque del proyecto wow-classic-rag (RAG autoalojado sobre wowhead).
-Decisiones de stack tomadas con el humano:
-- LLM: solo local (Ollama, `qwen2.5:7b-instruct`).
-- Vector store: PostgreSQL + pgvector.
-- Idioma: multilingüe (embeddings `bge-m3`).
-- Hardware: GPU disponible.
+Spec de `f1-document-model-loader` redactado (Kiro-style). Pendiente de aprobación humana antes de pasar a `in_progress` e implementación.
 
-Fundamentos del arnés ya escritos por el leader (fuera de src/tests):
-`feature-list.json` (roadmap F0–F12), `docs/{architecture,conventions,specs,verification}.md`,
-`CHECKPOINTS.md` re-orientado, `init.sh` creado y verde (exit 0).
+Decisiones de diseño del spec:
+- Corpus en **JSONL** (un `Document` por línea). Descartados Markdown+frontmatter y JSON-array único.
+- Modelo **`Document` pydantic** en `src/wowrag/models.py` (campo `text` + metadata `source_url`, `title`, `section`).
+- `JsonlCorpusLoader` detrás de la interfaz swappable `CorpusLoader` (Protocol) en `src/wowrag/ingest/`.
+- Scraping real de wowhead fuera de alcance (diferido a f11).
+- 11 requisitos (R1..R11), 7 tasks (T1..T7; T5–T6 tests, T7 verificación).
 
 ## Bitácora
 
-- Repo encontrado como template SDD vacío (era "portfolio"); reconfigurado al proyecto.
-- Regla stdlib-only del template eliminada: este proyecto usa deps pineadas.
-- `init.sh` ejecutado: exit 0. Python del sistema = 3.14.4.
+- F0 completada y cerrada esta sesión (implementer + reviewer).
+- `spec-author` no estaba registrado como subagent_type en el harness; se delegó la redacción del spec a un agente `general-purpose` con el rol de `.claude/agents/spec-author.md` (no toca src/ ni tests/).
 
 ## Próximo paso
 
-Lanzar `spec_author` para `f0-project-skeleton` → quedará en `spec_ready` →
-**pausa para aprobación humana**.
+⏸ **PUERTA DE APROBACIÓN HUMANA.** El humano revisa `specs/f1-document-model-loader/{requirements,design,tasks}.md` y aprueba o pide cambios. Tras aprobación: leader cambia F1 a `in_progress` y lanza implementer.
 
 ## Riesgos anotados
 

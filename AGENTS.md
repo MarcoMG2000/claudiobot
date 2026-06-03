@@ -28,7 +28,7 @@
 | `docs/specs.md`              | Proceso SDD: EARS notation, los 3 archivos, puerta de aprobación humana     | Antes de redactar o leer un spec |
 | `docs/verification.md`       | Cómo verificar que tu trabajo funciona (incluye trazabilidad requirements)  | Antes de declarar una tarea como `done` |
 | `CHECKPOINTS.md`             | Criterios objetivos de "estado final correcto"                              | Para auto-evaluarte |
-| `.claude/agents/`            | Definiciones de subagentes (`leader`, `spec_author`, `implementer`, `reviewer`) | Si orquestas trabajo |
+| `.claude/agents/`            | Definiciones de subagentes (`leader`, `spec-author`, `implementer`, `reviewer`) | Si orquestas trabajo |
 | `src/`                       | Código de la aplicación                                                     | Para implementar |
 | `tests/`                     | Tests automáticos                                                           | Para verificar |
 
@@ -38,7 +38,7 @@
 - **No declares una tarea `done` sin pruebas verdes.** Ejecuta `./init.sh` y
   asegúrate de que el bloque de tests pasa al 100%.
 - **No saltes la fase de spec.** Toda feature con `"sdd": true` debe pasar
-  por `spec_author` y obtener aprobación humana antes de tocar código.
+  por `spec-author` y obtener aprobación humana antes de tocar código.
 - **No saltes la puerta de aprobación humana.** El leader detiene el flujo
   en `spec_ready` y espera.
 - **Documenta lo que haces** en `progress/current.md` mientras trabajas, no al final.
@@ -48,11 +48,11 @@
 ## 4. Flujo de trabajo (SDD)
 
 ```
-pending → [spec_author] → spec_ready → ⏸ HUMANO → in_progress → [implementer → reviewer] → done
+pending → [spec-author] → spec_ready → ⏸ HUMANO → in_progress → [implementer → reviewer] → done
 ```
 
 1. El leader detecta la primera feature `pending` con `"sdd": true`.
-2. El leader lanza `spec_author`, que crea
+2. El leader lanza `spec-author`, que crea
    `specs/<name>/{requirements,design,tasks}.md` y marca el status como
    `spec_ready`.
 3. **Pausa.** El humano lee el spec en `specs/<name>/` y aprueba (o pide cambios).

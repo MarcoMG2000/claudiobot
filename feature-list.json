@@ -28,7 +28,7 @@
         {
             "id": "f0-project-skeleton",
             "title": "Project skeleton & configuration system",
-            "status": "spec_ready",
+            "status": "done",
             "sdd": true,
             "depends_on": [],
             "acceptance": "src/ package layout exists; pydantic-settings loads config from env + files; persona/style configs are loadable and swappable; requirements.txt is pinned; init.sh sets up venv, installs deps, runs pytest green."
@@ -36,7 +36,7 @@
         {
             "id": "f1-document-model-loader",
             "title": "Document model + local corpus loader",
-            "status": "pending",
+            "status": "spec_ready",
             "sdd": true,
             "depends_on": ["f0-project-skeleton"],
             "acceptance": "A Document schema (text + metadata: source_url, title, section) and a loader that reads a local corpus directory. Real wowhead scraping is deferred to a later feature."

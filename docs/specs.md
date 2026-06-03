@@ -17,10 +17,10 @@ Cada feature vive en `specs/<id>/` con tres ficheros:
 ## La puerta de aprobación humana
 
 ```
-pending → [spec_author] → spec_ready → ⏸ HUMANO APRUEBA → in_progress → [implementer → reviewer] → done
+pending → [spec-author] → spec_ready → ⏸ HUMANO APRUEBA → in_progress → [implementer → reviewer] → done
 ```
 
-Cuando el spec está listo, el `spec_author` cambia el status a `spec_ready` y el
+Cuando el spec está listo, el `spec-author` cambia el status a `spec_ready` y el
 **leader se detiene**. Ningún código se escribe hasta que el humano apruebe.
 
 ## Notación EARS (obligatoria en `requirements.md`)
