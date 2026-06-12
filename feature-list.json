@@ -44,7 +44,7 @@
         {
             "id": "f2-chunking",
             "title": "Chunking pipeline",
-            "status": "pending",
+            "status": "done",
             "sdd": true,
             "depends_on": ["f1-document-model-loader"],
             "acceptance": "Documents split into overlapping chunks preserving metadata and a stable chunk id; configurable size/overlap."

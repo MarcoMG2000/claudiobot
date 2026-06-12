@@ -32,3 +32,29 @@ class Document(BaseModel):
         if not v or not v.strip():
             raise ValueError("text must be a non-empty string")
         return v
+
+
+class Chunk(BaseModel):
+    """Un fragmento de texto derivado de un Document, con metadata heredada.
+
+    Fields
+    ------
+    chunk_id   : Identificador estable (determinista) de este chunk.
+    text       : Fragmento de texto (obligatorio, no vacío).
+    source_url : Heredado de Document; necesario para citas aguas abajo.
+    title      : Heredado de Document.
+    section    : Heredado de Document.
+    """
+
+    chunk_id: str
+    text: str
+    source_url: str
+    title: str
+    section: str
+
+    @field_validator("text")
+    @classmethod
+    def _text_not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("text must be a non-empty string")
+        return v

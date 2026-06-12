@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     top_k: int = 5
     score_threshold: float = 0.30
     default_persona: str = "simple"
+    chunk_size: int = 512      # máximo de caracteres por chunk
+    chunk_overlap: int = 64    # caracteres de solapamiento entre chunks consecutivos
 
 
 def default_persona(settings: Settings | None = None) -> Persona:

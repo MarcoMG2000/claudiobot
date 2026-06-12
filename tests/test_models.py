@@ -1,17 +1,23 @@
-"""Tests for the Document pydantic model (src/wowrag/models.py).
+"""Tests for the Document and Chunk pydantic models (src/wowrag/models.py).
 
-Traceability
-------------
+Traceability — Document
+-----------------------
 R1 — Document has text, source_url, title, section fields.
 R2 — text empty or blank raises ValidationError mentioning 'text';
      missing required fields also raise ValidationError.
 R3 — section is optional, defaults to "".
+
+Traceability — Chunk (f2-chunking)
+-----------------------------------
+R1 (f2) — Chunk has chunk_id, text, source_url, title, section fields.
+R2 (f2) — text empty or blank raises ValidationError mentioning 'text'.
+R3 (f2) — Chunk is a pydantic BaseModel; JSON serialisation works.
 """
 
 import pytest
 from pydantic import ValidationError
 
-from wowrag.models import Document
+from wowrag.models import Chunk, Document
 
 
 # ---------------------------------------------------------------------------
@@ -143,3 +149,82 @@ def test_document_missing_text_raises_validation_error():  # R2
             source_url="https://www.wowhead.com/classic/item=1",
             title="Title",
         )
+
+
+# ---------------------------------------------------------------------------
+# Chunk — R1 (f2): valid construction, all fields present
+# ---------------------------------------------------------------------------
+
+
+def test_chunk_valid():  # R1 (f2-chunking)
+    """A fully-specified Chunk is constructed and all fields are preserved."""
+    chunk = Chunk(
+        chunk_id="abc123def456abcd",
+        text="Fireball deals fire damage.",
+        source_url="https://www.wowhead.com/classic/spell=133/fireball",
+        title="Fireball - Spell",
+        section="Effects",
+    )
+    assert chunk.chunk_id == "abc123def456abcd"
+    assert chunk.text == "Fireball deals fire damage."
+    assert chunk.source_url == "https://www.wowhead.com/classic/spell=133/fireball"
+    assert chunk.title == "Fireball - Spell"
+    assert chunk.section == "Effects"
+
+
+# ---------------------------------------------------------------------------
+# Chunk — R2 (f2): empty / blank text raises ValidationError
+# ---------------------------------------------------------------------------
+
+
+def test_chunk_empty_text():  # R2 (f2-chunking)
+    """Chunk with text='' must raise a ValidationError referencing 'text'."""
+    with pytest.raises(ValidationError) as exc_info:
+        Chunk(
+            chunk_id="abc123def456abcd",
+            text="",
+            source_url="https://www.wowhead.com/classic/spell=133/fireball",
+            title="Fireball - Spell",
+            section="Effects",
+        )
+    errors = exc_info.value.errors()
+    assert any(
+        "text" in str(e.get("loc", "")) or "text" in str(e.get("msg", ""))
+        for e in errors
+    ), f"Expected error referencing 'text', got: {errors}"
+
+
+def test_chunk_blank_text():  # R2 (f2-chunking)
+    """Chunk with text='   ' (only spaces) must raise a ValidationError."""
+    with pytest.raises(ValidationError) as exc_info:
+        Chunk(
+            chunk_id="abc123def456abcd",
+            text="   ",
+            source_url="https://www.wowhead.com/classic/spell=133/fireball",
+            title="Fireball - Spell",
+            section="Effects",
+        )
+    errors = exc_info.value.errors()
+    assert any(
+        "text" in str(e.get("loc", "")) or "text" in str(e.get("msg", ""))
+        for e in errors
+    ), f"Expected error referencing 'text', got: {errors}"
+
+
+# ---------------------------------------------------------------------------
+# Chunk — R3 (f2): Chunk is a pydantic BaseModel; JSON round-trip works
+# ---------------------------------------------------------------------------
+
+
+def test_chunk_json_roundtrip():  # R3 (f2-chunking)
+    """Chunk.model_dump() / Chunk.model_validate() produces the same object."""
+    original = Chunk(
+        chunk_id="abc123def456abcd",
+        text="Fireball deals fire damage.",
+        source_url="https://www.wowhead.com/classic/spell=133/fireball",
+        title="Fireball - Spell",
+        section="Effects",
+    )
+    data = original.model_dump()
+    restored = Chunk.model_validate(data)
+    assert restored == original

@@ -12,6 +12,7 @@ from wowrag.ingest.base import (
     CorpusNotFoundError,
     MalformedCorpusError,
 )
+from wowrag.ingest.chunking import Chunker, ChunkingError, OverlapChunker
 from wowrag.ingest.loader import JsonlCorpusLoader
 
 __all__ = [
@@ -20,4 +21,7 @@ __all__ = [
     "CorpusError",
     "CorpusNotFoundError",
     "MalformedCorpusError",
+    "Chunker",
+    "ChunkingError",
+    "OverlapChunker",
 ]
