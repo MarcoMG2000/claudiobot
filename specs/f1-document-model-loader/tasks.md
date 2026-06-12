@@ -8,18 +8,18 @@
 
 ## Implementación
 
-- [ ] **T1 — Modelo `Document`.** Crear `src/wowrag/models.py` con el modelo
+- [x] **T1 — Modelo `Document`.** Crear `src/wowrag/models.py` con el modelo
   pydantic `Document` (`text`, `source_url`, `title` obligatorios; `section: str
   = ""`) y un `field_validator` que rechace `text` vacío o solo espacios.
   _(Cubre R1, R2, R3)_
 
-- [ ] **T2 — Interfaz `CorpusLoader` y excepciones.** Crear
+- [x] **T2 — Interfaz `CorpusLoader` y excepciones.** Crear
   `src/wowrag/ingest/base.py` con el `Protocol` `CorpusLoader`
   (`load(corpus_dir) -> list[Document]`) y las excepciones `CorpusError`,
   `CorpusNotFoundError`, `MalformedCorpusError` (design §3).
   _(Cubre R4, R7, R8)_
 
-- [ ] **T3 — Implementación `JsonlCorpusLoader`.** Crear
+- [x] **T3 — Implementación `JsonlCorpusLoader`.** Crear
   `src/wowrag/ingest/loader.py` con `JsonlCorpusLoader.load(corpus_dir)` que:
   enumera `*.jsonl` de forma ordenada, construye un `Document` por línea no
   vacía, ignora líneas en blanco, lanza `CorpusNotFoundError` si la ruta no es
@@ -27,14 +27,14 @@
   inválido o `Document` inválido. No usa red ni servicios.
   _(Cubre R5, R6, R7, R8, R9, R10, R11)_
 
-- [ ] **T4 — Exports del paquete `ingest`.** Reemplazar el placeholder
+- [x] **T4 — Exports del paquete `ingest`.** Reemplazar el placeholder
   `src/wowrag/ingest/__init__.py` para exportar `CorpusLoader`,
   `JsonlCorpusLoader`, `CorpusError`, `CorpusNotFoundError`,
   `MalformedCorpusError`. _(Cubre R5)_
 
 ## Tests (un fichero por módulo, `tmp_path`, sin servicios reales)
 
-- [ ] **T5 — `tests/test_models.py`.**
+- [x] **T5 — `tests/test_models.py`.**
   - `Document(text=..., source_url=..., title=..., section=...)` válido se
     construye y conserva los campos (R1).
   - `Document` sin `section` → `section == ""` (R3).
@@ -43,7 +43,7 @@
   - Falta de un campo obligatorio (`source_url`/`title`) → `ValidationError` (R2).
   _(Cubre R1, R2, R3)_
 
-- [ ] **T6 — `tests/test_corpus_loader.py`.**
+- [x] **T6 — `tests/test_corpus_loader.py`.**
   - Escribir uno o varios `.jsonl` válidos en `tmp_path`; `load` devuelve un
     `Document` por línea con la metadata correcta (R6).
   - Directorio sin ficheros `.jsonl` (o vacío) → `[]` (R9).
@@ -61,6 +61,6 @@
 
 ## Cierre
 
-- [ ] **T7 — Verificación.** Ejecutar `./init.sh` y confirmar exit 0 con la
+- [x] **T7 — Verificación.** Ejecutar `./init.sh` y confirmar exit 0 con la
   suite (no-integration) en verde, incluyendo los nuevos tests de f1.
   _(Verificación integral; no añade requirements nuevos)_

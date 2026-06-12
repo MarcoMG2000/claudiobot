@@ -1,30 +1,24 @@
 # Sesión actual
 
-- **Feature en curso:** `f1-document-model-loader` (fase: `spec_ready` — esperando aprobación humana)
-- **Inicio:** 2026-06-03
-- **Agente:** leader → spec-author
+- **Feature en curso:** ninguna — `f1-document-model-loader` cerrada como `done`
+- **Última actualización:** 2026-06-12
+- **Agente:** leader
 
-F0 cerrada como `done` (26 tests, init.sh exit 0, reviewer APROBADO). F0 desbloquea F1 y F7; por orden del roadmap se eligió F1.
-
-## Plan
-
-Spec de `f1-document-model-loader` redactado (Kiro-style). Pendiente de aprobación humana antes de pasar a `in_progress` e implementación.
-
-Decisiones de diseño del spec:
-- Corpus en **JSONL** (un `Document` por línea). Descartados Markdown+frontmatter y JSON-array único.
-- Modelo **`Document` pydantic** en `src/wowrag/models.py` (campo `text` + metadata `source_url`, `title`, `section`).
-- `JsonlCorpusLoader` detrás de la interfaz swappable `CorpusLoader` (Protocol) en `src/wowrag/ingest/`.
-- Scraping real de wowhead fuera de alcance (diferido a f11).
-- 11 requisitos (R1..R11), 7 tasks (T1..T7; T5–T6 tests, T7 verificación).
+F1 cerrada esta sesión: spec aprobado por el humano → implementer (30 tests nuevos) → reviewer APROBADO. Suite total: 56 tests verdes (26 f0 + 30 f1), `./init.sh` exit 0.
 
 ## Bitácora
 
-- F0 completada y cerrada esta sesión (implementer + reviewer).
-- `spec-author` no estaba registrado como subagent_type en el harness; se delegó la redacción del spec a un agente `general-purpose` con el rol de `.claude/agents/spec-author.md` (no toca src/ ni tests/).
+- Humano aprobó spec de F1 (puerta de aprobación superada).
+- F1 marcada `in_progress`, baseline verificada con `./init.sh` (26 tests).
+- Implementer: `Document` pydantic en `src/wowrag/models.py`, `CorpusLoader` Protocol + `JsonlCorpusLoader` en `src/wowrag/ingest/`. Tasks T1–T7 completas. Informe en `progress/impl_f1-document-model-loader.md`.
+- Reviewer: trazabilidad R1..R11 ↔ tests OK, tasks completas, APROBADO. Informe en `progress/review_f1-document-model-loader.md`.
+- F1 marcada `done` en `feature-list.json`.
 
 ## Próximo paso
 
-⏸ **PUERTA DE APROBACIÓN HUMANA.** El humano revisa `specs/f1-document-model-loader/{requirements,design,tasks}.md` y aprueba o pide cambios. Tras aprobación: leader cambia F1 a `in_progress` y lanza implementer.
+Siguiente feature por orden de roadmap: **`f2-chunking`** (status `pending`, depende de f1 ✅). Flujo: leader lanza spec-author → `spec_ready` → ⏸ aprobación humana → implementer → reviewer.
+
+Alternativa desbloqueada: `f7-llm-provider-ollama` (depende solo de f0).
 
 ## Riesgos anotados
 

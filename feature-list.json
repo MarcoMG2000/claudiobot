@@ -36,7 +36,7 @@
         {
             "id": "f1-document-model-loader",
             "title": "Document model + local corpus loader",
-            "status": "spec_ready",
+            "status": "done",
             "sdd": true,
             "depends_on": ["f0-project-skeleton"],
             "acceptance": "A Document schema (text + metadata: source_url, title, section) and a loader that reads a local corpus directory. Real wowhead scraping is deferred to a later feature."

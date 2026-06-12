@@ -1,1 +1,23 @@
-"""Ingest layer (placeholder). Corpus loading and chunking land in f1/f2."""
+"""Ingest layer — corpus loading and (future) chunking.
+
+Public API for the ingest layer.  Consumers should depend on the
+``CorpusLoader`` interface, not on ``JsonlCorpusLoader`` directly.
+The concrete implementation is selected at the single composition point
+(factory / config).
+"""
+
+from wowrag.ingest.base import (
+    CorpusError,
+    CorpusLoader,
+    CorpusNotFoundError,
+    MalformedCorpusError,
+)
+from wowrag.ingest.loader import JsonlCorpusLoader
+
+__all__ = [
+    "CorpusLoader",
+    "JsonlCorpusLoader",
+    "CorpusError",
+    "CorpusNotFoundError",
+    "MalformedCorpusError",
+]
