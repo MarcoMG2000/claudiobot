@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     default_persona: str = "simple"
     chunk_size: int = 512      # máximo de caracteres por chunk
     chunk_overlap: int = 64    # caracteres de solapamiento entre chunks consecutivos
+    vector_table: str = "chunks"      # nombre de la tabla de chunks en pgvector
+    distance_metric: str = "cosine"   # métrica de similitud del almacén vectorial
 
 
 def default_persona(settings: Settings | None = None) -> Persona:

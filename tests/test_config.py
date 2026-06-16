@@ -15,6 +15,8 @@ EXPECTED_DEFAULTS = {
     "top_k": 5,
     "score_threshold": 0.30,
     "default_persona": "simple",
+    "vector_table": "chunks",       # R30
+    "distance_metric": "cosine",    # R31
 }
 
 
@@ -54,6 +56,16 @@ def test_embedding_batch_size_and_device_overridable_from_env(monkeypatch):  # R
     settings = Settings(_env_file=None)
     assert settings.embedding_batch_size == 8
     assert settings.embedding_device == "cuda"
+
+
+def test_vector_table_and_metric_overridable_from_env(monkeypatch):  # R30, R31
+    # R30/R31: vector_table and distance_metric must be configurable from the
+    # environment, not just hardcoded defaults.
+    monkeypatch.setenv("VECTOR_TABLE", "wow_chunks")
+    monkeypatch.setenv("DISTANCE_METRIC", "l2")
+    settings = Settings(_env_file=None)
+    assert settings.vector_table == "wow_chunks"
+    assert settings.distance_metric == "l2"
 
 
 def test_reads_values_from_env_file(tmp_path):  # R6

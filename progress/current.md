@@ -1,7 +1,20 @@
 # Sesión actual
 
+- **Feature en curso:** `f4-vector-store-pgvector` — Slice A (interfaz + fake + config)
+- **Última actualización:** 2026-06-16
+- **Agente:** implementer
+- **Estado:** in_progress
+- **Plan:** ejecutar las tasks A1–A7 de `specs/f4-vector-store-pgvector/tasks.md`
+  (Slice A únicamente: `store/base.py` `VectorStore` Protocol + `VectorStoreError`,
+  `FakeVectorStore` in-memory stdlib coseno, `store/__init__.py` re-exporta
+  interfaz/fake/excepción, `Settings.vector_table`+`distance_metric`, tests A5–A7).
+  NO implemento Slice B (`PgVectorStore`/`migrations.sql`/`requirements-pg.txt`)
+  ni Slice C (`IndexingPipeline`). NO marco `done`.
+
+---
+
+## (histórico previo)
 - **Feature en curso:** ninguna — `f3-embeddings-provider` cerrada como `done`
-- **Última actualización:** 2026-06-15
 - **Agente:** leader
 
 F3 cerrada esta sesión (spec aprobado por humano → implementer → reviewer CHANGES_REQUESTED → fix → reviewer APROBADO). Suite total: 86 tests verdes + 1 skipped (integración bge_m3), `./init.sh` exit 0.
