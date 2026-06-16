@@ -1,0 +1,7 @@
+# Postgres + pgvector driver for PgVectorStore. NOT loaded by init.sh.
+# Excluded from the base requirements.txt on purpose (test_requirements_pinned.py
+# forbids psycopg there). Install manually only when a Postgres+pgvector instance
+# is available and you want to run PgVectorStore or its @integration tests:
+#   pip install -r requirements-pg.txt
+psycopg[binary]>=3.2.0
+pgvector>=0.3.0

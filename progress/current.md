@@ -1,15 +1,19 @@
 # Sesión actual
 
-- **Feature en curso:** `f4-vector-store-pgvector` — Slice A (interfaz + fake + config)
+- **Feature en curso:** `f4-vector-store-pgvector` — Slice B (pgvector + migración)
 - **Última actualización:** 2026-06-16
 - **Agente:** implementer
 - **Estado:** in_progress
-- **Plan:** ejecutar las tasks A1–A7 de `specs/f4-vector-store-pgvector/tasks.md`
-  (Slice A únicamente: `store/base.py` `VectorStore` Protocol + `VectorStoreError`,
-  `FakeVectorStore` in-memory stdlib coseno, `store/__init__.py` re-exporta
-  interfaz/fake/excepción, `Settings.vector_table`+`distance_metric`, tests A5–A7).
-  NO implemento Slice B (`PgVectorStore`/`migrations.sql`/`requirements-pg.txt`)
-  ni Slice C (`IndexingPipeline`). NO marco `done`.
+- **Plan:** ejecutar las tasks B1–B4 de `specs/f4-vector-store-pgvector/tasks.md`
+  (Slice B únicamente: `store/migrations.sql` DDL idempotente parametrizada,
+  `store/pgvector_store.py` `PgVectorStore` con import lazy de `psycopg`/`pgvector`
+  → `VectorStoreError` si falta, `requirements-pg.txt` aislado de init.sh,
+  re-export de `PgVectorStore` en `store/__init__.py`, tests integración
+  `test_store_pgvector.py` + los 2 tests unitarios de aislamiento diferidos de
+  A5/A6 (R13 `test_pgvector_module_importable_without_driver`, R14
+  `test_pgvector_instantiation_raises_without_driver`)).
+  NO implemento Slice A (ya DONE, aprobada) ni Slice C (`IndexingPipeline`).
+  NO marco `done`.
 
 ---
 

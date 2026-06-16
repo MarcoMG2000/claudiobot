@@ -3,9 +3,10 @@
 Covers the DB-free interface contract for Slice A:
 R1, R2, R6, R7, R11, R19, R26, R29.
 
-Note: the cases that import ``wowrag.store.pgvector_store``
-(``test_pgvector_module_importable_without_driver``, R13) belong to the module
-created in Slice B and are added when that module exists (see tasks.md A5 note).
+R13 (``test_pgvector_module_importable_without_driver``) is the import-isolation
+unit test deferred from Slice A (A5 note); it landed with Slice B once the
+``pgvector_store`` module existed. It runs in ``init.sh`` (NOT an integration
+test) because it verifies the module imports WITHOUT the driver installed.
 """
 
 from __future__ import annotations
@@ -59,3 +60,15 @@ def test_ensure_schema_idempotent_noop():  # R2, R29
     store = FakeVectorStore(dimension=2)
     assert store.ensure_schema() is None
     assert store.ensure_schema() is None  # second call must not raise
+
+
+def test_pgvector_module_importable_without_driver():  # R13
+    """Importing the pgvector_store module must not require psycopg/pgvector.
+
+    The driver import is lazy (inside PgVectorStore.__init__), so importing the
+    module raises no ImportError even when the driver is not installed.
+    """
+    import importlib
+
+    module = importlib.import_module("wowrag.store.pgvector_store")
+    assert hasattr(module, "PgVectorStore")

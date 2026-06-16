@@ -2,15 +2,27 @@
 
 Covers Slice A fake-specific behaviour: R4, R5, R8, R9, R10, R18, R27, R28.
 
-Note: ``test_pgvector_instantiation_raises_without_driver`` (R14) belongs to the
-``PgVectorStore`` class created in Slice B and is added when that module exists
-(see tasks.md A6 note).
+R14 (``test_pgvector_instantiation_raises_without_driver``) is the
+instantiation-isolation unit test deferred from Slice A (A6 note); it landed with
+Slice B once the ``PgVectorStore`` class existed. It runs in ``init.sh`` (NOT an
+integration test) because it verifies that instantiating ``PgVectorStore``
+WITHOUT the driver raises ``VectorStoreError`` (a domain error), not
+``ImportError``.
 """
 
 from __future__ import annotations
 
+import importlib.util
+
+import pytest
+
 from wowrag.models import Chunk
-from wowrag.store import FakeVectorStore
+from wowrag.store import FakeVectorStore, PgVectorStore, VectorStoreError
+
+_DRIVER_INSTALLED = (
+    importlib.util.find_spec("psycopg") is not None
+    and importlib.util.find_spec("pgvector") is not None
+)
 
 
 def _chunk(chunk_id: str, text: str = "hello") -> Chunk:
@@ -83,3 +95,17 @@ def test_result_carries_metadata():  # R18
 def test_dimension_default_and_custom():  # R5
     assert FakeVectorStore().dimension == 1024
     assert FakeVectorStore(dimension=64).dimension == 64
+
+
+@pytest.mark.skipif(
+    _DRIVER_INSTALLED,
+    reason="Postgres driver is installed; the missing-driver path is not exercised",
+)
+def test_pgvector_instantiation_raises_without_driver():  # R14
+    """Constructing PgVectorStore without the driver raises VectorStoreError.
+
+    It must surface a domain error (VectorStoreError), never a raw ImportError,
+    so callers get a uniform store-layer failure with an install hint.
+    """
+    with pytest.raises(VectorStoreError):
+        PgVectorStore(dsn="postgresql://x", dimension=8)

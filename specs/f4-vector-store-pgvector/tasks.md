@@ -124,7 +124,7 @@ B, o crea un `pgvector_store.py` mínimo importable en A.)
 > dependencias del driver aisladas, y tests de integración (excluidos de
 > `init.sh`). El módulo importa sin el driver instalado.
 
-- [ ] **B1 — `migrations.sql`.**
+- [x] **B1 — `migrations.sql`.**
   Crear `src/wowrag/store/migrations.sql` con DDL idempotente parametrizada por
   `{table}` y `{dim}`: `CREATE EXTENSION IF NOT EXISTS vector`; tabla con
   `chunk_id TEXT PRIMARY KEY`, `text`, `source_url`, `title`, `section` (NOT
@@ -132,7 +132,7 @@ B, o crea un `pgvector_store.py` mínimo importable en A.)
   `vector_cosine_ops`. Ver `design.md` §7.
   _(Cubre R15, R16, R17)_
 
-- [ ] **B2 — `PgVectorStore` con import lazy.**
+- [x] **B2 — `PgVectorStore` con import lazy.**
   Crear `src/wowrag/store/pgvector_store.py` con `PgVectorStore`:
   - Constructor `__init__(self, dsn, dimension, table="chunks", metric="cosine")`.
   - Import de `psycopg` y `pgvector.psycopg.register_vector` **dentro del
@@ -152,14 +152,14 @@ B, o crea un `pgvector_store.py` mínimo importable en A.)
     k`; mapea cada fila a un par `(Chunk(...), score)` usando el `Chunk` existente.
   _(Cubre R12, R13, R14, R7, R8, R10, R16, R17, R18, R19, R25)_
 
-- [ ] **B3 — Crear `requirements-pg.txt`.**
+- [x] **B3 — Crear `requirements-pg.txt`.**
   Crear `requirements-pg.txt` en la raíz con `psycopg[binary]>=3.2.0` y
   `pgvector>=0.3.0`, con comentario que lo identifique como dependencia manual
   excluida de `init.sh`. NO añadir estas dependencias a `requirements.txt` (el
   test `test_requirements_pinned.py` ya prohíbe `psycopg` ahí).
   _(Condición necesaria para R12, R13, R14; salvaguarda riesgo driver/Python 3.14)_
 
-- [ ] **B4 — `tests/test_store_pgvector.py`** (integración).
+- [x] **B4 — `tests/test_store_pgvector.py`** (integración).
   Crear el fichero con `@pytest.mark.integration` en cada test. Se excluyen
   automáticamente por `init.sh`. Casos mínimos (requieren Postgres+pgvector):
   - `test_ensure_schema_creates_and_idempotent`: `ensure_schema()` crea esquema;
