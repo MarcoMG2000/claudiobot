@@ -45,3 +45,38 @@
   `progress/review_f3-embeddings-provider.md`.
 
 ---
+
+## f4-vector-store-pgvector — Vector store (abstraction + pgvector) and indexing
+
+- **Fecha de cierre:** 2026-06-16
+- **Estado final:** `done`
+- **Entrega:** 3 slices apilados (el humano eligió PRs encadenados):
+  - **Slice A** (commit `1d84d2c`): `VectorStore` (Protocol) + `VectorStoreError`
+    (`src/wowrag/store/base.py`), `FakeVectorStore` en memoria con coseno
+    solo-stdlib (`fake.py`), re-exports del paquete (`__init__.py`),
+    `Settings.vector_table`/`distance_metric` con tests de default y
+    override por env. Reviewer APROBADO.
+  - **Slice B** (commit `cbf9ac1`): `PgVectorStore` con import perezoso de
+    psycopg/pgvector (`pgvector_store.py`), `migrations.sql` idempotente,
+    `requirements-pg.txt` (driver aislado de init.sh), tests de integración
+    `@pytest.mark.integration`, tests unitarios R13/R14 de aislamiento de
+    import. Reviewer APROBADO.
+  - **Slice C** (este commit): `IndexingPipeline` en nuevo módulo `index/`
+    (`pipeline.py`, corpus→load→chunk→embed→upsert, DI vía Protocols),
+    4 tests unitarios end-to-end con fakes. Reviewer APROBADO (puerta final
+    de toda la feature).
+- **Decisiones de diseño en la puerta de aprobación:** `RetrievedChunk`
+  diferido a f5 → `similarity_search` devuelve `list[tuple[Chunk, float]]`;
+  nuevo módulo `index/` para indexado offline (separado del path de consulta
+  online `rag/`).
+- **Trazabilidad:** R1–R33 cubiertos por ≥1 test entre los slices A+B+C.
+- **Tests:** `./init.sh` exit 0, 105 passed + 2 skipped (ficheros de
+  integración pgvector + bge_m3, sin driver / sin FlagEmbedding).
+- **Nota:** el subagente `implementer` de Slice C murió (stream timeout) tras
+  escribir código+tests pero antes de su report; el leader reconstruyó
+  `progress/impl_f4-slice-c.md` desde el estado verificado en disco. El
+  reviewer verificó el código directamente.
+- **Reports:** `progress/impl_f4-slice-{a,b,c}.md`,
+  `progress/review_f4-slice-{a,b,c}.md`.
+
+---

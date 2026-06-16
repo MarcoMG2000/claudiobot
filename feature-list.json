@@ -60,7 +60,7 @@
         {
             "id": "f4-vector-store-pgvector",
             "title": "Vector store (abstraction + pgvector) and indexing",
-            "status": "in_progress",
+            "status": "done",
             "sdd": true,
             "depends_on": ["f3-embeddings-provider"],
             "acceptance": "VectorStore interface; pgvector-backed implementation with schema migration; upsert chunks+embeddings+metadata; similarity search; indexing pipeline that ingests a corpus end-to-end."

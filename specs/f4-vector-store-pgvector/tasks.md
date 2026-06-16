@@ -190,7 +190,7 @@ sigue verde. Tras apilar B, los casos `test_pgvector_module_importable_without_d
 > Pipeline de orquestación offline corpus → load → chunk → embed → upsert, en el
 > módulo nuevo `index/`, testeado end-to-end solo con fakes (sin servicios reales).
 
-- [ ] **C1 — `IndexingPipeline` en módulo `index/`.**
+- [x] **C1 — `IndexingPipeline` en módulo `index/`.**
   Crear `src/wowrag/index/pipeline.py` con `IndexingPipeline`:
   - Constructor recibe `loader: CorpusLoader`, `chunker: Chunker`,
     `embedder: EmbeddingProvider`, `store: VectorStore` (solo interfaces).
@@ -201,7 +201,7 @@ sigue verde. Tras apilar B, los casos `test_pgvector_module_importable_without_d
   Crear `src/wowrag/index/__init__.py` re-exportando `IndexingPipeline`.
   _(Cubre R20, R21, R22, R23)_
 
-- [ ] **C2 — `tests/test_index_pipeline.py`** (end-to-end con fakes).
+- [x] **C2 — `tests/test_index_pipeline.py`** (end-to-end con fakes).
   - `test_index_ingests_corpus_end_to_end`: con `tmp_path` + un `*.jsonl` de
     prueba, `JsonlCorpusLoader` + `OverlapChunker` + `FakeEmbeddingProvider` +
     `FakeVectorStore`; `IndexingPipeline.index(tmp_path)` devuelve C = nº total
@@ -223,7 +223,7 @@ end-to-end solo con interfaces/fakes (sin Postgres ni GPU).
 
 ## Cierre (transversal a las 3 slices)
 
-- [ ] **Z1 — Verificación final.** Ejecutar `./init.sh` y confirmar exit 0 con
+- [x] **Z1 — Verificación final.** Ejecutar `./init.sh` y confirmar exit 0 con
   la suite `not integration` en verde (tests previos + A5–A7, C2). Los tests de
   B4 deben existir en disco y estar marcados `@pytest.mark.integration`; no
   tienen que pasar en `init.sh`. Comprobar que:

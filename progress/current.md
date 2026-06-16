@@ -1,44 +1,28 @@
 # Sesión actual
 
-- **Feature en curso:** `f4-vector-store-pgvector` — Slice B (pgvector + migración)
+- **Feature en curso:** ninguna — `f4-vector-store-pgvector` cerrada como `done`
 - **Última actualización:** 2026-06-16
-- **Agente:** implementer
-- **Estado:** in_progress
-- **Plan:** ejecutar las tasks B1–B4 de `specs/f4-vector-store-pgvector/tasks.md`
-  (Slice B únicamente: `store/migrations.sql` DDL idempotente parametrizada,
-  `store/pgvector_store.py` `PgVectorStore` con import lazy de `psycopg`/`pgvector`
-  → `VectorStoreError` si falta, `requirements-pg.txt` aislado de init.sh,
-  re-export de `PgVectorStore` en `store/__init__.py`, tests integración
-  `test_store_pgvector.py` + los 2 tests unitarios de aislamiento diferidos de
-  A5/A6 (R13 `test_pgvector_module_importable_without_driver`, R14
-  `test_pgvector_instantiation_raises_without_driver`)).
-  NO implemento Slice A (ya DONE, aprobada) ni Slice C (`IndexingPipeline`).
-  NO marco `done`.
-
----
-
-## (histórico previo)
-- **Feature en curso:** ninguna — `f3-embeddings-provider` cerrada como `done`
 - **Agente:** leader
 
-F3 cerrada esta sesión (spec aprobado por humano → implementer → reviewer CHANGES_REQUESTED → fix → reviewer APROBADO). Suite total: 86 tests verdes + 1 skipped (integración bge_m3), `./init.sh` exit 0.
+F4 cerrada esta sesión, entregada en 3 slices stacked (PRs encadenados). Suite total: 105 tests verdes + 2 skipped (integración pgvector + bge_m3), `./init.sh` exit 0.
 
 ## Bitácora
 
-- Humano aprobó spec de F3 (puerta de aprobación superada). Decisión registrada: mantener FastAPI (no Django) para f9.
-- Implementer F3: `EmbeddingProvider` Protocol + `EmbeddingError` (`src/wowrag/embeddings/base.py`), `FakeEmbeddingProvider` stdlib-only (`fake.py`), `BgeM3Embeddings` con import lazy de FlagEmbedding (`bge_m3.py`), re-exports (`__init__.py`), campos `embedding_batch_size`/`embedding_device` en `Settings` (`config.py`), `requirements-ml.txt` (deps ML aisladas de init.sh). Informe en `progress/impl_f3-embeddings-provider.md`.
-- Reviewer F3: primera pasada CHANGES_REQUESTED — R10 sin cobertura (los dos campos nuevos de Settings no estaban testeados).
-- Implementer fix: `test_embedding_batch_size_and_device_overridable_from_env` + `EXPECTED_DEFAULTS` ampliado en `tests/test_config.py`.
-- Reviewer re-review: APROBADO (R10 verificado por mutación, sin regresión). Informe en `progress/review_f3-embeddings-provider.md`.
-- F3 marcada `done` en `feature-list.json`; entrada añadida a `progress/history.md`.
+- Humano aprobó spec de F4 con 2 cambios: diferir `RetrievedChunk` a f5; usar 3 slices.
+- Spec revisado: `similarity_search` devuelve `list[tuple[Chunk, float]]`; 33 requisitos (R1–R33); tasks reorganizadas en slices A/B/C + cierre Z1.
+- **Slice A** (commit `1d84d2c`): `VectorStore` Protocol + `VectorStoreError` (`store/base.py`), `FakeVectorStore` in-memory stdlib coseno (`fake.py`), re-exports, `Settings.vector_table`/`distance_metric` con tests default+env-override. Reviewer APROBADO.
+- **Slice B** (commit `cbf9ac1`): `PgVectorStore` con import lazy psycopg/pgvector (`pgvector_store.py`), `migrations.sql` idempotente, `requirements-pg.txt` (driver aislado de init.sh), tests `@pytest.mark.integration` + R13/R14 unit de aislamiento. Reviewer APROBADO.
+- **Slice C** (este commit): `IndexingPipeline` en módulo nuevo `index/` (`pipeline.py`, corpus→load→chunk→embed→upsert, DI por interfaces), 4 tests end-to-end con fakes. Reviewer APROBADO (puerta final de feature).
+- Incidente: el implementer de Slice C murió por "Stream idle timeout" tras escribir código+tests pero antes del informe; el leader verificó `./init.sh` exit 0 y reconstruyó `progress/impl_f4-slice-c.md`. El reviewer verificó el código directamente.
+- F4 marcada `done` en `feature-list.json`; entrada añadida a `progress/history.md`.
 
 ## Próximo paso
 
-Siguiente feature por orden de roadmap: **`f4-vector-store-pgvector`** (status `pending`, depende de f3 ✅). Flujo: leader lanza spec-author → `spec_ready` → ⏸ aprobación humana → implementer → reviewer.
+Siguiente por orden de roadmap: **`f5-retriever`** (status `pending`, depende de f4 ✅). Aquí entra `RetrievedChunk` (diferido desde f4): wrapper de `(Chunk, score)` con metadatos para citas. Flujo: leader lanza spec-author → `spec_ready` → ⏸ aprobación humana → implementer → reviewer.
 
-Alternativa desbloqueada: **`f7-llm-provider-ollama`** (depende solo de f0 ✅), buen candidato para paralelizar — no toca pgvector ni torch.
+Alternativa desbloqueada (paralela): **`f7-llm-provider-ollama`** (depende solo de f0 ✅), no toca pgvector ni torch.
 
 ## Riesgos anotados
 
-- Python 3.14: f4 (pgvector) necesita `psycopg`/driver con wheels para 3.14; el spec de f4 debe aislar la dependencia de BD detrás de la interfaz `VectorStore` con un fake en memoria para tests unitarios (mismo patrón que f3 con `FakeEmbeddingProvider` + `@pytest.mark.integration` para la implementación real).
-- f4 requiere un Postgres+pgvector real para tests de integración → marcar `@pytest.mark.integration`, excluido de init.sh.
+- f5 debe introducir `RetrievedChunk` y definir el contrato de abstención (score máx < umbral → señal de abstención) que f8 consumirá.
+- Tests de integración reales de f4 (pgvector) requieren Postgres+pgvector con la extensión `vector`; instalar `requirements-pg.txt` y un Postgres local para correrlos (`pytest -m integration`).
