@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     llm_model: str = "qwen2.5:7b-instruct"
     embedding_model: str = "BAAI/bge-m3"
     embedding_dim: int = 1024
+    embedding_batch_size: int = 32   # número de textos por batch en BgeM3Embeddings
+    embedding_device: str = "cpu"    # "cpu" | "cuda"; sin GPU por defecto
     top_k: int = 5
     score_threshold: float = 0.30
     default_persona: str = "simple"

@@ -52,7 +52,7 @@
         {
             "id": "f3-embeddings-provider",
             "title": "Embeddings provider (abstraction + bge-m3)",
-            "status": "pending",
+            "status": "done",
             "sdd": true,
             "depends_on": ["f2-chunking"],
             "acceptance": "EmbeddingProvider interface with a bge-m3 implementation; batch embedding; deterministic dimension; unit-testable via a fake provider."

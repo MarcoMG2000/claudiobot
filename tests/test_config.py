@@ -10,6 +10,8 @@ EXPECTED_DEFAULTS = {
     "llm_model": "qwen2.5:7b-instruct",
     "embedding_model": "BAAI/bge-m3",
     "embedding_dim": 1024,
+    "embedding_batch_size": 32,
+    "embedding_device": "cpu",
     "top_k": 5,
     "score_threshold": 0.30,
     "default_persona": "simple",
@@ -42,6 +44,16 @@ def test_env_var_overrides_default(monkeypatch):  # R4
     settings = Settings(_env_file=None)
     assert settings.top_k == 42
     assert settings.default_persona == "orc"
+
+
+def test_embedding_batch_size_and_device_overridable_from_env(monkeypatch):  # R10
+    # R10: embedding_batch_size and embedding_device must be configurable
+    # from the environment, not just hardcoded defaults.
+    monkeypatch.setenv("EMBEDDING_BATCH_SIZE", "8")
+    monkeypatch.setenv("EMBEDDING_DEVICE", "cuda")
+    settings = Settings(_env_file=None)
+    assert settings.embedding_batch_size == 8
+    assert settings.embedding_device == "cuda"
 
 
 def test_reads_values_from_env_file(tmp_path):  # R6

@@ -1,0 +1,6 @@
+# ML dependencies for bge-m3 (BgeM3Embeddings). NOT loaded by init.sh.
+# Heavy, GPU-oriented stack; install manually only when running the real
+# embedding provider or its integration tests:
+#   pip install -r requirements-ml.txt
+FlagEmbedding>=1.3.0
+torch>=2.3.0
