@@ -220,3 +220,45 @@
   `progress/review_f8-rag-orchestrator.md`.
 
 ---
+
+## f9-http-api — HTTP API (FastAPI)
+
+- **Fecha de cierre:** 2026-06-17
+- **Estado final:** `done`
+- **Entrega:** PR único (~360 líneas).
+- **Flujo:** spec aprobado por humano ("aprobado f9") → `in_progress` →
+  `implementer` → `reviewer` APROBADO (sin rondas de cambios).
+- **Construido:**
+  - `src/wowrag/api/`: `app.py` (`create_app()`), `routes.py` (`/ask`,
+    `/health`), `schemas.py` (`AskRequest{query, persona?}`),
+    `dependencies.py` (`get_orchestrator` + `build_orchestrator` perezoso),
+    `__init__.py` materializado.
+  - `POST /ask` reutiliza `Answer` de f8 como `response_model`; handlers
+    **sync `def`** (FastAPI los corre en su threadpool; `answer` es síncrono);
+    persona por request o default de config. `GET /health`.
+  - CORS desde `Settings.cors_allow_origins` (campo nuevo, default `["*"]`,
+    configurable por env).
+  - Mapa de errores: 422 (pydantic) · 400 (`OrchestratorError`/
+    `PersonaNotFoundError`) · 503 (infra: retriever/embedding/store/LLM),
+    cuerpos JSON, `logger.exception`, sin stack traces filtrados.
+  - DI vía `Depends(get_orchestrator)`; tests con `app.dependency_overrides` +
+    fake orchestrator + `TestClient`; cero DB/ML/Ollama/red; importar la app
+    no carga torch/psycopg/httpx (`build_orchestrator` perezoso).
+- **Cambio de dependencias:** `fastapi`/`uvicorn`/`httpx` añadidos pineados
+  (`==`) a `requirements.txt` y movidos de `DEFERRED` a `PINNED` en
+  `tests/test_requirements_pinned.py` (así `TestClient` funciona en el
+  `./init.sh` por defecto). `torch`/`sentence-transformers`/`psycopg` siguen
+  diferidos (import perezoso).
+- **Frontera de alcance:** solo expone f8 por HTTP; streaming/SSE diferido;
+  sin frontend real, sin f10/f11/f12; lógica de f5–f8 intacta.
+- **Trazabilidad:** R1–R25 cubiertos por ≥1 test ejecutable (ver
+  `progress/review_f9-http-api.md`).
+- **Tests:** `./init.sh` exit 0, **210 passed + 2 skipped + 5 deselected**.
+  Los 5 deselected son los tests `@integration` de `test_llm_ollama.py` (ahora
+  colectables porque `httpx` está instalado, pero excluidos por
+  `-m "not integration"`; no llaman a un Ollama vivo). Los 2 skipped son los
+  ficheros de integración pgvector + bge_m3.
+- **Reports:** `progress/impl_f9-http-api.md`,
+  `progress/review_f9-http-api.md`.
+
+---

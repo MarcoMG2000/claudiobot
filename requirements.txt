@@ -1,5 +1,10 @@
-# f0-project-skeleton dependencies (pinned). Deps for later features
-# (fastapi, uvicorn, torch, sentence-transformers, psycopg) are deferred.
+# Pinned runtime + test dependencies. Heavy deps for later features
+# (torch, sentence-transformers, psycopg) stay deferred and use lazy imports.
 pydantic-settings==2.14.1
 pyyaml==6.0.3
 pytest==9.0.3
+# f9-http-api: HTTP layer (FastAPI + ASGI server) and the HTTP client that
+# fastapi.testclient.TestClient/Starlette needs so the default suite can run.
+fastapi==0.137.1
+uvicorn==0.49.0
+httpx==0.28.1

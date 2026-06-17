@@ -1,50 +1,49 @@
 # Sesión actual
 
-- **Feature en curso:** ninguna — `f8-rag-orchestrator` cerrada `done` esta
-  sesión. No hay feature en `in_progress`.
+- **Feature en curso:** ninguna — `f9-http-api` cerrada `done` esta sesión.
+  No hay feature en `in_progress`.
 - **Última actualización:** 2026-06-17
 - **Agente:** leader
 
-Pipeline RAG completo a nivel librería: f0–f8 todas `done`. Suite total:
-`./init.sh` exit 0, **187 passed + 3 skipped** (integración pgvector + bge_m3 +
-real-Ollama, todos `@pytest.mark.integration`).
+Servicio RAG API-first completo end-to-end: **f0–f9 todas `done`**. Suite
+total: `./init.sh` exit 0, **210 passed + 2 skipped + 5 deselected**.
+- 2 skipped: ficheros de integración pgvector + bge_m3.
+- 5 deselected: tests `@integration` de `test_llm_ollama.py` (colectables al
+  estar `httpx` instalado, excluidos por `-m "not integration"`; no tocan un
+  Ollama vivo).
 
 ## Bitácora
 
-- **f7 cerrada:** change-round R19 resuelto (test network-free con
-  `monkeypatch` de `httpx`), `reviewer` APROBADO, `implementer` flipó `done`.
-- **f6:** bookkeeping completado (entrada añadida a `history.md`).
-- **f8 cerrada:** humano aprobó el spec ("aprobado") → leader flipó
-  `in_progress` → `implementer` (Answer/AnswerMetadata en `models.py`;
-  `RagOrchestrator`/`DefaultRagOrchestrator` en `rag/`; DI de f5+f6+f7;
-  abstención por short-circuit de `below_threshold`, mensaje propio, nunca
-  lanza) → `reviewer` APROBADO (sin rondas) → `implementer` flipó `done`.
-  21 tests nuevos (166 → 187).
+- **f7** cerrada (change-round R19 resuelto), **f6** bookkeeping completado,
+  **f8** cerrada (orquestador + abstención). Backlog **f5–f8 commiteado** en
+  `4559ada`.
+- **f9-http-api cerrada:** humano aprobó ("aprobado f9") → leader flipó
+  `in_progress` → `implementer` (FastAPI `src/wowrag/api/`: `/ask` + `/health`,
+  CORS configurable, DI con `dependency_overrides` para `TestClient`, errores
+  422/400/503; `fastapi`/`uvicorn`/`httpx` pineados a `requirements.txt` y
+  movidos a `PINNED` en `test_requirements_pinned.py`) → `reviewer` APROBADO
+  (sin rondas) → `implementer` flipó `done`. 23 tests nuevos (187 → 210).
 
 ## Próximo paso — decisión del humano
 
-Features dependency-ready (ambas `pending`, dependen de f8 ✅):
+Feature dependency-ready (`pending`, depende de f8 ✅):
 
-- **`f9-http-api`** — POST `/ask` → `{answer, sources, abstained, metadata}`,
-  health endpoint, CORS para el futuro frontend, persona por request o config.
-  Expone el `DefaultRagOrchestrator` de f8 vía FastAPI. Aquí probablemente
-  entra el async/streaming diferido desde f7/f8.
-- **`f10-evaluation-harness`** — dataset golden Q&A; métricas de hit-rate,
-  faithfulness/groundedness, y abstención correcta en preguntas fuera de
-  corpus; ejecutable como script/reporte.
+- **`f10-evaluation-harness`** — dataset golden Q&A; métricas de retrieval
+  hit-rate, faithfulness/groundedness, y abstención correcta en preguntas
+  fuera de corpus; ejecutable como script/reporte.
 
-`f11-wowhead-ingestion` y `f12-reranking` siguen diferidas `[LATER]`.
+`f11-wowhead-ingestion` y `f12-reranking` siguen diferidas `[LATER]` (f11 =
+scraper real de wowhead; f12 = reranker cross-encoder).
 
-Regla `one_feature_at_a_time: true` → una sola feature a la vez. Al elegir, el
-leader lanza spec-author (vía `general-purpose`) → `spec_ready` → ⏸ puerta de
-aprobación humana.
+Regla `one_feature_at_a_time: true`. Al elegir, el leader lanza spec-author
+(vía `general-purpose`) → `spec_ready` → ⏸ puerta de aprobación humana.
 
 ## Riesgos / notas
 
-- **Trabajo sin commitear (creciente):** el working tree acumula f5 + f6 + f7 +
-  f8 (código, tests, specs, reports) sin commit; el último commit es f4
-  (`7fe3e91`). Decidir si se commitea antes de seguir.
-- Tests de integración reales (pgvector + bge_m3 + Ollama) siguen skipped:
-  requieren Postgres+pgvector, FlagEmbedding/GPU y un Ollama vivo
-  (`requirements-pg.txt` / `requirements-ml.txt` / `requirements-llm.txt`,
-  `pytest -m integration`).
+- Tests de integración reales (pgvector + bge_m3 + Ollama) siguen sin
+  ejecutarse: requieren Postgres+pgvector, FlagEmbedding/GPU y un Ollama vivo
+  (`requirements-pg.txt` / `requirements-ml.txt`, `pytest -m integration`).
+  Hasta f11 no hay corpus real de wowhead → el path online end-to-end solo se
+  ha validado con fakes.
+- f10 cierra el bucle de calidad (mide faithfulness/abstención del servicio f8
+  ya expuesto por f9).

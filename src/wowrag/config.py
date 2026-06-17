@@ -33,6 +33,16 @@ class Settings(BaseSettings):
     vector_table: str = "chunks"      # nombre de la tabla de chunks en pgvector
     distance_metric: str = "cosine"   # métrica de similitud del almacén vectorial
 
+    # CORS para el frontend in-game futuro (f9). No hardcodeados en la app: el
+    # middleware los lee desde aquí, configurables por entorno. El comodín "*" es
+    # solo el default explícito y documentado; se puede cerrar a una lista de
+    # orígenes. En env, una lista se expresa como JSON, p. ej.
+    # WOWRAG_CORS_ALLOW_ORIGINS='["https://game.example"]'. (R14)
+    cors_allow_origins: list[str] = ["*"]
+    cors_allow_credentials: bool = False
+    cors_allow_methods: list[str] = ["*"]
+    cors_allow_headers: list[str] = ["*"]
+
 
 def default_persona(settings: Settings | None = None) -> Persona:
     """Resolve the default persona from ``Settings.default_persona``.

@@ -100,7 +100,7 @@
         {
             "id": "f9-http-api",
             "title": "HTTP API (FastAPI)",
-            "status": "pending",
+            "status": "done",
             "sdd": true,
             "depends_on": ["f8-rag-orchestrator"],
             "acceptance": "POST /ask returns {answer, sources, abstained, metadata}; health endpoint; CORS configured for a future in-game frontend; persona selectable per-request or via config."

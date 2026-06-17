@@ -17,6 +17,10 @@ EXPECTED_DEFAULTS = {
     "default_persona": "simple",
     "vector_table": "chunks",       # R30
     "distance_metric": "cosine",    # R31
+    "cors_allow_origins": ["*"],            # R14 (f9-http-api)
+    "cors_allow_credentials": False,        # R14 (f9-http-api)
+    "cors_allow_methods": ["*"],            # R14 (f9-http-api)
+    "cors_allow_headers": ["*"],            # R14 (f9-http-api)
 }
 
 
@@ -108,3 +112,20 @@ def test_ollama_url_and_llm_model_overridable_from_env(monkeypatch):  # R13 (f7-
     settings = Settings(_env_file=None)
     assert settings.ollama_url == "http://custom-ollama:11434"
     assert settings.llm_model == "llama3:8b"
+
+
+def test_cors_allow_origins_override_constructor():  # R14 (f9-http-api)
+    # R14: CORS origins are read from Settings, not hardcoded. A constructor
+    # override (as create_app/tests use) must take effect, not "*".
+    settings = Settings(
+        _env_file=None, cors_allow_origins=["https://game.example"]
+    )
+    assert settings.cors_allow_origins == ["https://game.example"]
+
+
+def test_cors_allow_origins_override_from_env(monkeypatch):  # R14 (f9-http-api)
+    # R14: CORS origins are configurable from the environment (JSON list), so
+    # the wildcard default can be closed to a fixed allow-list per deployment.
+    monkeypatch.setenv("CORS_ALLOW_ORIGINS", '["https://game.example"]')
+    settings = Settings(_env_file=None)
+    assert settings.cors_allow_origins == ["https://game.example"]

@@ -5,8 +5,12 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REQUIREMENTS = REPO_ROOT / "requirements.txt"
 
-PINNED = ["pydantic-settings", "pyyaml", "pytest"]
-DEFERRED = ["fastapi", "uvicorn", "torch", "sentence-transformers", "psycopg"]
+# fastapi/uvicorn/httpx promoted from DEFERRED to PINNED in f9-http-api: the
+# default test suite exercises the FastAPI app via TestClient (needs httpx), so
+# init.sh must install them. torch/sentence-transformers/psycopg stay deferred
+# (f3/f4 use lazy imports; not installed by init.sh).  (R24)
+PINNED = ["pydantic-settings", "pyyaml", "pytest", "fastapi", "uvicorn", "httpx"]
+DEFERRED = ["torch", "sentence-transformers", "psycopg"]
 
 
 def _dependency_lines() -> list[str]:
