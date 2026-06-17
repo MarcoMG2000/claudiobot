@@ -1,0 +1,7 @@
+# LLM HTTP client for OllamaLLM. NOT loaded by init.sh.
+# Excluded from requirements.txt on purpose (OllamaLLM uses a lazy import;
+# the base test suite runs network-free via FakeLLMProvider).
+# Install manually only when a local Ollama server is available and you want
+# to run OllamaLLM or its @integration tests:
+#   pip install -r requirements-llm.txt
+httpx>=0.27.0

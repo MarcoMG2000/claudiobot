@@ -1,28 +1,50 @@
 # Sesión actual
 
-- **Feature en curso:** ninguna — `f4-vector-store-pgvector` cerrada como `done`
-- **Última actualización:** 2026-06-16
+- **Feature en curso:** ninguna — `f8-rag-orchestrator` cerrada `done` esta
+  sesión. No hay feature en `in_progress`.
+- **Última actualización:** 2026-06-17
 - **Agente:** leader
 
-F4 cerrada esta sesión, entregada en 3 slices stacked (PRs encadenados). Suite total: 105 tests verdes + 2 skipped (integración pgvector + bge_m3), `./init.sh` exit 0.
+Pipeline RAG completo a nivel librería: f0–f8 todas `done`. Suite total:
+`./init.sh` exit 0, **187 passed + 3 skipped** (integración pgvector + bge_m3 +
+real-Ollama, todos `@pytest.mark.integration`).
 
 ## Bitácora
 
-- Humano aprobó spec de F4 con 2 cambios: diferir `RetrievedChunk` a f5; usar 3 slices.
-- Spec revisado: `similarity_search` devuelve `list[tuple[Chunk, float]]`; 33 requisitos (R1–R33); tasks reorganizadas en slices A/B/C + cierre Z1.
-- **Slice A** (commit `1d84d2c`): `VectorStore` Protocol + `VectorStoreError` (`store/base.py`), `FakeVectorStore` in-memory stdlib coseno (`fake.py`), re-exports, `Settings.vector_table`/`distance_metric` con tests default+env-override. Reviewer APROBADO.
-- **Slice B** (commit `cbf9ac1`): `PgVectorStore` con import lazy psycopg/pgvector (`pgvector_store.py`), `migrations.sql` idempotente, `requirements-pg.txt` (driver aislado de init.sh), tests `@pytest.mark.integration` + R13/R14 unit de aislamiento. Reviewer APROBADO.
-- **Slice C** (este commit): `IndexingPipeline` en módulo nuevo `index/` (`pipeline.py`, corpus→load→chunk→embed→upsert, DI por interfaces), 4 tests end-to-end con fakes. Reviewer APROBADO (puerta final de feature).
-- Incidente: el implementer de Slice C murió por "Stream idle timeout" tras escribir código+tests pero antes del informe; el leader verificó `./init.sh` exit 0 y reconstruyó `progress/impl_f4-slice-c.md`. El reviewer verificó el código directamente.
-- F4 marcada `done` en `feature-list.json`; entrada añadida a `progress/history.md`.
+- **f7 cerrada:** change-round R19 resuelto (test network-free con
+  `monkeypatch` de `httpx`), `reviewer` APROBADO, `implementer` flipó `done`.
+- **f6:** bookkeeping completado (entrada añadida a `history.md`).
+- **f8 cerrada:** humano aprobó el spec ("aprobado") → leader flipó
+  `in_progress` → `implementer` (Answer/AnswerMetadata en `models.py`;
+  `RagOrchestrator`/`DefaultRagOrchestrator` en `rag/`; DI de f5+f6+f7;
+  abstención por short-circuit de `below_threshold`, mensaje propio, nunca
+  lanza) → `reviewer` APROBADO (sin rondas) → `implementer` flipó `done`.
+  21 tests nuevos (166 → 187).
 
-## Próximo paso
+## Próximo paso — decisión del humano
 
-Siguiente por orden de roadmap: **`f5-retriever`** (status `pending`, depende de f4 ✅). Aquí entra `RetrievedChunk` (diferido desde f4): wrapper de `(Chunk, score)` con metadatos para citas. Flujo: leader lanza spec-author → `spec_ready` → ⏸ aprobación humana → implementer → reviewer.
+Features dependency-ready (ambas `pending`, dependen de f8 ✅):
 
-Alternativa desbloqueada (paralela): **`f7-llm-provider-ollama`** (depende solo de f0 ✅), no toca pgvector ni torch.
+- **`f9-http-api`** — POST `/ask` → `{answer, sources, abstained, metadata}`,
+  health endpoint, CORS para el futuro frontend, persona por request o config.
+  Expone el `DefaultRagOrchestrator` de f8 vía FastAPI. Aquí probablemente
+  entra el async/streaming diferido desde f7/f8.
+- **`f10-evaluation-harness`** — dataset golden Q&A; métricas de hit-rate,
+  faithfulness/groundedness, y abstención correcta en preguntas fuera de
+  corpus; ejecutable como script/reporte.
 
-## Riesgos anotados
+`f11-wowhead-ingestion` y `f12-reranking` siguen diferidas `[LATER]`.
 
-- f5 debe introducir `RetrievedChunk` y definir el contrato de abstención (score máx < umbral → señal de abstención) que f8 consumirá.
-- Tests de integración reales de f4 (pgvector) requieren Postgres+pgvector con la extensión `vector`; instalar `requirements-pg.txt` y un Postgres local para correrlos (`pytest -m integration`).
+Regla `one_feature_at_a_time: true` → una sola feature a la vez. Al elegir, el
+leader lanza spec-author (vía `general-purpose`) → `spec_ready` → ⏸ puerta de
+aprobación humana.
+
+## Riesgos / notas
+
+- **Trabajo sin commitear (creciente):** el working tree acumula f5 + f6 + f7 +
+  f8 (código, tests, specs, reports) sin commit; el último commit es f4
+  (`7fe3e91`). Decidir si se commitea antes de seguir.
+- Tests de integración reales (pgvector + bge_m3 + Ollama) siguen skipped:
+  requieren Postgres+pgvector, FlagEmbedding/GPU y un Ollama vivo
+  (`requirements-pg.txt` / `requirements-ml.txt` / `requirements-llm.txt`,
+  `pytest -m integration`).

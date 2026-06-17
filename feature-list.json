@@ -68,7 +68,7 @@
         {
             "id": "f5-retriever",
             "title": "Retriever",
-            "status": "pending",
+            "status": "done",
             "sdd": true,
             "depends_on": ["f4-vector-store-pgvector"],
             "acceptance": "Query -> embedding -> top-k retrieval with scores and metadata; configurable k and score threshold used for abstention signaling."
@@ -76,7 +76,7 @@
         {
             "id": "f6-prompt-builder",
             "title": "Prompt builder: persona/style + grounding + citations",
-            "status": "pending",
+            "status": "done",
             "sdd": true,
             "depends_on": ["f5-retriever"],
             "acceptance": "Builds a system+user prompt injecting persona/style (simple, Orc, Troll, ...) and strict grounding instructions; formats retrieved context with citation markers; persona selected by config."
@@ -84,7 +84,7 @@
         {
             "id": "f7-llm-provider-ollama",
             "title": "LLM provider abstraction + Ollama",
-            "status": "pending",
+            "status": "done",
             "sdd": true,
             "depends_on": ["f0-project-skeleton"],
             "acceptance": "LLMProvider interface with an Ollama implementation (local HTTP); model configurable; unit-testable via a fake provider."
@@ -92,7 +92,7 @@
         {
             "id": "f8-rag-orchestrator",
             "title": "RAG orchestrator + abstention logic",
-            "status": "pending",
+            "status": "done",
             "sdd": true,
             "depends_on": ["f6-prompt-builder", "f7-llm-provider-ollama"],
             "acceptance": "Ties retrieve -> prompt -> generate; abstains with a clear message when retrieval is below threshold; returns answer + source citations + metadata (model, persona, scores)."

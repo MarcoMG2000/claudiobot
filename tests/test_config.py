@@ -86,3 +86,25 @@ def test_env_var_takes_priority_over_env_file(tmp_path, monkeypatch):  # R4, R6
     monkeypatch.setenv("LLM_MODEL", "from-env")
     settings = Settings(_env_file=str(env_file))
     assert settings.llm_model == "from-env"
+
+
+def test_score_threshold_overridable_from_env(monkeypatch):  # R19 (f5-retriever)
+    # R19: score_threshold must be configurable from the SCORE_THRESHOLD env var.
+    # The default-assert already exists in EXPECTED_DEFAULTS (0.30).
+    # This test closes the env-override gap identified in design.md §6.
+    monkeypatch.setenv("SCORE_THRESHOLD", "0.5")
+    settings = Settings(_env_file=None)
+    assert settings.score_threshold == 0.5
+
+
+def test_ollama_url_and_llm_model_overridable_from_env(monkeypatch):  # R13 (f7-llm-provider-ollama)
+    # R13: ollama_url and llm_model must be configurable from the environment,
+    # not just hardcoded defaults. The default-asserts already exist in
+    # EXPECTED_DEFAULTS above; this test closes the env-override gap per the
+    # f3 R10 / f5 lesson (each Settings field consumed by a feature needs both
+    # a default-assert and an env-override test).
+    monkeypatch.setenv("OLLAMA_URL", "http://custom-ollama:11434")
+    monkeypatch.setenv("LLM_MODEL", "llama3:8b")
+    settings = Settings(_env_file=None)
+    assert settings.ollama_url == "http://custom-ollama:11434"
+    assert settings.llm_model == "llama3:8b"
