@@ -1,49 +1,43 @@
 # Sesión actual
 
-- **Feature en curso:** ninguna — `f9-http-api` cerrada `done` esta sesión.
-  No hay feature en `in_progress`.
+- **Feature en curso:** `f10-evaluation-harness` (`in_progress`) — entrega en
+  2 slices encadenados; **Slice A cerrado y aprobado**, Slice B pendiente.
 - **Última actualización:** 2026-06-17
 - **Agente:** leader
 
-Servicio RAG API-first completo end-to-end: **f0–f9 todas `done`**. Suite
-total: `./init.sh` exit 0, **210 passed + 2 skipped + 5 deselected**.
-- 2 skipped: ficheros de integración pgvector + bge_m3.
-- 5 deselected: tests `@integration` de `test_llm_ollama.py` (colectables al
-  estar `httpx` instalado, excluidos por `-m "not integration"`; no tocan un
-  Ollama vivo).
+f0–f9 `done`. f10 en curso. Suite total tras Slice A: `./init.sh` exit 0,
+**245 passed + 2 skipped + 5 deselected** (+35 tests de Slice A).
 
 ## Bitácora
 
-- **f7** cerrada (change-round R19 resuelto), **f6** bookkeeping completado,
-  **f8** cerrada (orquestador + abstención). Backlog **f5–f8 commiteado** en
-  `4559ada`.
-- **f9-http-api cerrada:** humano aprobó ("aprobado f9") → leader flipó
-  `in_progress` → `implementer` (FastAPI `src/wowrag/api/`: `/ask` + `/health`,
-  CORS configurable, DI con `dependency_overrides` para `TestClient`, errores
-  422/400/503; `fastapi`/`uvicorn`/`httpx` pineados a `requirements.txt` y
-  movidos a `PINNED` en `test_requirements_pinned.py`) → `reviewer` APROBADO
-  (sin rondas) → `implementer` flipó `done`. 23 tests nuevos (187 → 210).
+- f0–f9 cerradas y commiteadas (`4559ada` backlog f5–f8, `bb3429a` f9).
+- **f10 aprobado** ("aprobado f10", entrega 2 slices encadenados). Leader
+  flipó `spec_ready` → `in_progress`.
+- **f10 Slice A** (dataset + métricas + runner + tests) — `implementer` →
+  `reviewer` APROBADO. Paquete `src/wowrag/eval/` (modelos propios, NO en
+  `models.py` global): `GoldenItem` + loader JSONL + fixture
+  `data/golden.jsonl`; métricas hit-rate / faithfulness-proxy (solo-stdlib,
+  sin LLM) / abstención precision-recall; runner con orquestador inyectable
+  (`FakeOrchestrator`, cero DB/ML/Ollama). Reqs Slice A (R1–R21/R27/R29 +
+  R30 parcial) cubiertos. ~1058 líneas (incl. ~595 de tests; sobre el
+  estimado ~430 — los tests inflaron el conteo, no bloqueante).
 
-## Próximo paso — decisión del humano
+## Próximo paso — Slice B de f10
 
-Feature dependency-ready (`pending`, depende de f8 ✅):
+- **Slice B** (~140 líneas): CLI `python -m wowrag.eval` (`--dataset`,
+  `--out`) + `EvalReport` JSON + composición perezosa del orquestador real
+  (reutiliza `build_orchestrator` de f9, import perezoso). Reqs R22–R26/R28 +
+  R30 final. Tests con `main(argv, orchestrator=...)` inyectable.
+- Tras Slice B: `reviewer` (puerta final de feature) → `implementer` flipa
+  `f10 → done` → leader mueve resumen a `history.md`.
 
-- **`f10-evaluation-harness`** — dataset golden Q&A; métricas de retrieval
-  hit-rate, faithfulness/groundedness, y abstención correcta en preguntas
-  fuera de corpus; ejecutable como script/reporte.
-
-`f11-wowhead-ingestion` y `f12-reranking` siguen diferidas `[LATER]` (f11 =
-scraper real de wowhead; f12 = reranker cross-encoder).
-
-Regla `one_feature_at_a_time: true`. Al elegir, el leader lanza spec-author
-(vía `general-purpose`) → `spec_ready` → ⏸ puerta de aprobación humana.
+Después de f10 solo quedan diferidas: `f11-wowhead-ingestion` (scraper real,
+necesario para validar el path online con corpus real) y `f12-reranking`.
 
 ## Riesgos / notas
 
-- Tests de integración reales (pgvector + bge_m3 + Ollama) siguen sin
-  ejecutarse: requieren Postgres+pgvector, FlagEmbedding/GPU y un Ollama vivo
-  (`requirements-pg.txt` / `requirements-ml.txt`, `pytest -m integration`).
-  Hasta f11 no hay corpus real de wowhead → el path online end-to-end solo se
-  ha validado con fakes.
-- f10 cierra el bucle de calidad (mide faithfulness/abstención del servicio f8
-  ya expuesto por f9).
+- Slice A entró ~1058 líneas (con tests) vs ~430 estimado. Slice B (~140)
+  mantiene el total de f10 razonable; el budget de 400 por PR aplica al diff
+  revisable por slice.
+- Path online aún validado solo con fakes (sin corpus wowhead hasta f11; sin
+  Ollama/pgvector/bge-m3 vivos — `@integration`).

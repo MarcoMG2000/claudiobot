@@ -1,0 +1,4 @@
+{"question": "What does Fireball do?", "expected_urls": ["https://www.wowhead.com/classic/spell=133/fireball"], "in_corpus": true, "reference_answer": "Fireball hurls a fiery ball that deals fire damage."}
+{"question": "How much mana does Frostbolt cost at rank 1?", "expected_urls": ["https://www.wowhead.com/classic/spell=116/frostbolt"], "in_corpus": true, "reference_answer": "Frostbolt rank 1 costs 25 mana."}
+{"question": "What is the best pizza topping in Azeroth?", "expected_urls": [], "in_corpus": false, "reference_answer": null}
+{"question": "Who won the 2026 FIFA World Cup?", "expected_urls": [], "in_corpus": false, "reference_answer": null}
