@@ -50,6 +50,21 @@ class Settings(BaseSettings):
     cors_allow_methods: list[str] = ["*"]
     cors_allow_headers: list[str] = ["*"]
 
+    # Wowhead ingest / scraper settings (f11). Campos nuevos y opcionales con
+    # defaults corteses; NO alteran ninguna clave existente ni exigen entorno
+    # para el camino por defecto. Misma política de cortesía que documenta
+    # design.md §7/§11: User-Agent identificable, ≥1 s entre peticiones,
+    # allowlist de host y tope de páginas. El corpus de salida es un directorio
+    # que el JsonlCorpusLoader de f1 lee sin cambios (R20, R21).
+    scrape_user_agent: str = (
+        "wow-classic-rag-bot/0.1 "
+        "(+https://github.com/wow-classic-rag/wow-classic-rag)"
+    )  # R10
+    scrape_min_interval_s: float = 1.0  # rate limit entre peticiones (R8)
+    scrape_allowed_host: str = "www.wowhead.com"  # allowlist de host (R17, R18)
+    scrape_max_pages: int = 100  # tope de páginas por ejecución (defensa)
+    scrape_corpus_path: str = "data/corpus"  # directorio de salida del JSONL (R21)
+
 
 def default_persona(settings: Settings | None = None) -> Persona:
     """Resolve the default persona from ``Settings.default_persona``.

@@ -22,6 +22,16 @@ EXPECTED_DEFAULTS = {
     "cors_allow_credentials": False,        # R14 (f9-http-api)
     "cors_allow_methods": ["*"],            # R14 (f9-http-api)
     "cors_allow_headers": ["*"],            # R14 (f9-http-api)
+    # f11-wowhead-ingestion (Slice A) scraper settings: new optional fields with
+    # courteous defaults; do not alter any existing key.
+    "scrape_user_agent": (                  # R10 (f11)
+        "wow-classic-rag-bot/0.1 "
+        "(+https://github.com/wow-classic-rag/wow-classic-rag)"
+    ),
+    "scrape_min_interval_s": 1.0,           # R8  (f11)
+    "scrape_allowed_host": "www.wowhead.com",  # R17, R18 (f11)
+    "scrape_max_pages": 100,                # R8 defense (f11)
+    "scrape_corpus_path": "data/corpus",    # R21 (f11)
 }
 
 
@@ -141,3 +151,23 @@ def test_cors_allow_origins_override_from_env(monkeypatch):  # R14 (f9-http-api)
     monkeypatch.setenv("CORS_ALLOW_ORIGINS", '["https://game.example"]')
     settings = Settings(_env_file=None)
     assert settings.cors_allow_origins == ["https://game.example"]
+
+
+def test_scrape_settings_overridable_from_env(monkeypatch):  # R8, R10, R17, R21 (f11)
+    # R8/R10/R17/R21: the wowhead scraper settings must be configurable from the
+    # environment, not just hardcoded defaults (the operator hardens the rate
+    # limit / UA / allowlist per deployment). The default-asserts live in
+    # EXPECTED_DEFAULTS above; this test closes the env-override gap, matching
+    # the project lesson that every Settings field consumed by a feature needs
+    # both a default-assert and an env-override test.
+    monkeypatch.setenv("SCRAPE_USER_AGENT", "custom-bot/9.9 (+mailto:me@example.com)")
+    monkeypatch.setenv("SCRAPE_MIN_INTERVAL_S", "2.5")
+    monkeypatch.setenv("SCRAPE_ALLOWED_HOST", "classic.wowhead.com")
+    monkeypatch.setenv("SCRAPE_MAX_PAGES", "7")
+    monkeypatch.setenv("SCRAPE_CORPUS_PATH", "/data/wowhead")
+    settings = Settings(_env_file=None)
+    assert settings.scrape_user_agent == "custom-bot/9.9 (+mailto:me@example.com)"
+    assert settings.scrape_min_interval_s == 2.5
+    assert settings.scrape_allowed_host == "classic.wowhead.com"
+    assert settings.scrape_max_pages == 7
+    assert settings.scrape_corpus_path == "/data/wowhead"

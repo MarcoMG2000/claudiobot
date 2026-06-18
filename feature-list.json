@@ -116,7 +116,7 @@
         {
             "id": "f11-wowhead-ingestion",
             "title": "[LATER] Wowhead ingestion / scraper",
-            "status": "pending",
+            "status": "in_progress",
             "sdd": true,
             "depends_on": ["f1-document-model-loader"],
             "acceptance": "Deferred. Fetches and normalizes wowhead content into the Document schema, respecting robots/rate limits."
