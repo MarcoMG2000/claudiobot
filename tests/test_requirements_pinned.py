@@ -7,9 +7,22 @@ REQUIREMENTS = REPO_ROOT / "requirements.txt"
 
 # fastapi/uvicorn/httpx promoted from DEFERRED to PINNED in f9-http-api: the
 # default test suite exercises the FastAPI app via TestClient (needs httpx), so
-# init.sh must install them. torch/sentence-transformers/psycopg stay deferred
-# (f3/f4 use lazy imports; not installed by init.sh).  (R24)
-PINNED = ["pydantic-settings", "pyyaml", "pytest", "fastapi", "uvicorn", "httpx"]
+# init.sh must install them.
+# selectolax promoted from DEFERRED to PINNED in f11-wowhead-ingestion (same
+# precedent): the default suite exercises WowheadNormalizer's HTML->Document
+# logic, which needs selectolax. selectolax is a lightweight binary-wheel parser
+# (no C toolchain / GPU / DB / live service), unlike torch/sentence-transformers/
+# psycopg, which stay deferred (f3/f4 use lazy imports; not installed by init.sh).
+# (R24)
+PINNED = [
+    "pydantic-settings",
+    "pyyaml",
+    "pytest",
+    "fastapi",
+    "uvicorn",
+    "httpx",
+    "selectolax",
+]
 DEFERRED = ["torch", "sentence-transformers", "psycopg"]
 
 

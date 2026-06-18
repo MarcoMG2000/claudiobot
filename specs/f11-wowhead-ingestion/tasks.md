@@ -99,7 +99,7 @@
 
 ### Implementación
 
-- [ ] **T7 — `WowheadNormalizer` en `ingest/wowhead/normalizer.py`.**
+- [x] **T7 — `WowheadNormalizer` en `ingest/wowhead/normalizer.py`.**
   Crear `normalizer.py` (ver §8): importar el parser (`selectolax`) DENTRO de
   `__init__`; si falta → `ScrapeError` (no `ImportError`, R31); `normalize(html,
   source_url) -> Document | None`: eliminar boilerplate (script/style/nav/header/
@@ -109,14 +109,14 @@
   NO toca el esquema. No importar el parser al tope del módulo (R25).
   _(Cubre R12, R13, R14, R15, R16, R25 parcial, R31, R26)_
 
-- [ ] **T8 — Fixtures HTML en `tests/fixtures/wowhead/`.**
+- [x] **T8 — Fixtures HTML en `tests/fixtures/wowhead/`.**
   Crear `spell_fireball.html` (página de wowhead realista con boilerplate: nav,
   ads, script, header/footer, más un `<title>`/`<h1>`, un `<h2>` de sección y
   cuerpo de texto) y `empty_body.html` (sin texto principal tras limpiar). Datos de
   fixture deterministas para ejercitar el normalizador sin red.
   _(Soporte de R12–R16; sin requirements propios)_
 
-- [ ] **T9 — `WowheadIngestor` + `IngestReport` en `ingest/wowhead/pipeline.py`.**
+- [x] **T9 — `WowheadIngestor` + `IngestReport` en `ingest/wowhead/pipeline.py`.**
   Crear `pipeline.py` (ver §9): `IngestReport(BaseModel)` (counts: `requested`,
   `skipped_robots`, `skipped_allowlist`, `skipped_empty`, `documents_written`,
   `out_path`) LOCAL del subpaquete (NO en `models.py`). `WowheadIngestor(fetcher,
@@ -130,7 +130,7 @@
   (R29).
   _(Cubre R5, R6, R8, R9, R16, R17, R18, R19, R23 parcial, R27, R29)_
 
-- [ ] **T10 — CLI `ingest/wowhead/cli.py` + `__main__.py` (composición perezosa).**
+- [x] **T10 — CLI `ingest/wowhead/cli.py` + `__main__.py` (composición perezosa).**
   Crear `cli.py` con `main(argv=None, fetcher=None) -> int` (ver §10): `argparse`
   con `urls` (nargs="+", R17) y `--out` (default `None` → `Settings.scrape_corpus_path`,
   R21); construye `Settings()` lazy dentro de `main`; usa el `fetcher` inyectado o
@@ -142,7 +142,7 @@
   (R22). Cero imports pesados al tope del módulo (R25).
   _(Cubre R21 final, R22, R23 final, R25 final)_
 
-- [ ] **T11 — Finalizar exports de `ingest/wowhead/__init__.py`.**
+- [x] **T11 — Finalizar exports de `ingest/wowhead/__init__.py`.**
   Asegurar que `__init__.py` re-exporta el conjunto público final (lo de Slice A +
   `WowheadNormalizer`, `WowheadIngestor`, `IngestReport`) con `__all__`, SIN que
   `import wowrag.ingest.wowhead` arrastre httpx ni el parser de forma eager
@@ -151,7 +151,7 @@
 
 ### Tests (Slice B)
 
-- [ ] **T-B-tests — Tests del normalizador, la pipeline y la CLI.**
+- [x] **T-B-tests — Tests del normalizador, la pipeline y la CLI.**
   Crear (ver §12), `not integration`, con `FakeFetcher`, fixtures HTML y `tmp_path`:
   - `tests/test_wowhead_normalizer.py`: campos `text/source_url/title/section`
     poblados desde el fixture (R12, R13, R14, R15); boilerplate (nav/ads/script)
@@ -176,13 +176,16 @@
 
 ## Cierre
 
-- [ ] **Z1 — Verificación final.** Ejecutar `./init.sh` y confirmar exit 0 con la
-  suite `not integration` en verde. Comprobar que:
-  - Todos los `R<n>` de `requirements.md` (R1–R31) tienen al menos un test.
+- [x] **Z1 — Verificación final.** Ejecutar `./init.sh` y confirmar exit 0 con la
+  suite `not integration` en verde (venv FRESCO: 297 passed, 2 skipped, 6
+  deselected, 1 warning). Comprobar que:
+  - Todos los `R<n>` de `requirements.md` (R1–R31) tienen al menos un test que PASA
+    (no *skipped*); R12/R14/R15/R16/R29 con cobertura efectiva en CI tras mover
+    `selectolax` a `requirements.txt` (change-round 1; ver design.md §8.1).
   - Importar `wowrag.ingest.wowhead` y sus submódulos NO arrastra `httpx` ni la
-    librería de parsing HTML (imports perezosos, R25); el parser vive SOLO en
-    `requirements-scrape.txt` y NO en `requirements.txt` (sigue pasando
-    `test_requirements_pinned.py`) (R24).
+    librería de parsing HTML (imports perezosos, R25), aunque `selectolax` ya esté
+    instalado por `init.sh` vía `requirements.txt` (pineado, sigue pasando
+    `test_requirements_pinned.py` con `selectolax` en PINNED).
   - Toda la lógica (fetcher, robots, rate-limit, normalizador, pipeline, CLI) corre
     con `FakeFetcher`, fixtures HTML y reloj/sleep fake, sin red (R29); el único
     test que toca wowhead vivo está marcado `@pytest.mark.integration` y queda

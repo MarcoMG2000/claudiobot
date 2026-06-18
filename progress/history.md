@@ -296,3 +296,48 @@
   `progress/review_f10-slice-{a,b}.md`.
 
 ---
+
+## f11-wowhead-ingestion — [LATER] Wowhead ingestion / scraper
+
+- **Fecha de cierre:** 2026-06-18
+- **Estado final:** `done`
+- **Entrega:** 2 slices encadenados:
+  - **Slice A** (commit `016148a`): `Fetcher` Protocol + `HttpxFetcher` (lazy
+    httpx) + `FakeFetcher` (registra URLs pedidas); `RobotsGate` (stdlib
+    `urllib.robotparser`, consultado ANTES de fetch, cache por host);
+    `RateLimiter` (clock inyectable); 5 campos `scrape_*` en `config.py`.
+    Reviewer APROBADO. Compliance probada: una URL disallowed por robots NUNCA
+    se pide; el rate-limit se aplica con fake clock.
+  - **Slice B** (este commit): `normalizer.py` (HTML→`Document` con
+    `selectolax` lazy → `ScrapeError`), `pipeline.py` (fetch robots+rate-limited
+    → normaliza → escribe corpus `wowhead.jsonl`, honra host allowlist +
+    page cap), `cli.py`/`__main__.py` (`python -m wowrag.ingest.wowhead`,
+    `main(argv, fetcher=None)` inyectable). Round-trip por `JsonlCorpusLoader`
+    (R20). Reviewer CHANGES_REQUESTED → (fix) → APROBADO.
+- **Change-round (decisión a destacar):** `selectolax` movido de
+  `requirements-scrape.txt` a `requirements.txt` (pineado `==`,
+  `DEFERRED`→`PINNED` en `test_requirements_pinned.py`), `requirements-scrape.txt`
+  eliminado, guards `importorskip` removidos. **Razón:** `selectolax` es un
+  parser ligero (wheels binarios, sin GPU/DB/servicio externo); aislarlo dejaba
+  la lógica core de f11 (normalizer/pipeline/CLI, R12/R14/R15/R16/R29) SIN
+  ejecutar en CI. Sigue el precedente de f9 (httpx/fastapi). **Es una DESVIACIÓN
+  del spec aprobado** (que pedía aislarlo); documentada en `design.md`. El
+  import sigue siendo perezoso (estilo defensivo, R25).
+- **Handoff:** escribe corpus JSONL consumido SIN cambios por el loader de f1 +
+  indexer de f4. **Desbloquea la validación end-to-end con corpus real.**
+- **Frontera de alcance:** produce `Document`s en el schema de f1; no cambia
+  f1–f10; no reordena (f12). Compliance (robots/rate-limit/UA identificable) es
+  requisito, no opcional.
+- **Trazabilidad:** R1–R31 cubiertos por ≥1 test ejecutable (R30 = live-fetch,
+  `@pytest.mark.integration`).
+- **Tests:** `./init.sh` exit 0, **297 passed + 2 skipped + 6 deselected**
+  (1 warning preexistente de f9, third-party).
+- **Seguimiento menor (no bloqueante):** `fetcher.py:40` +
+  `tests/test_wowhead_fetcher.py:121` aún citan `requirements-scrape.txt`
+  (eliminado) en el error-path de httpx-ausente — defensivo e inalcanzable
+  (httpx está en `requirements.txt` desde f9). Alinear el hint con
+  `requirements.txt` en una limpieza futura.
+- **Reports:** `progress/impl_f11-slice-{a,b}.md`,
+  `progress/review_f11-slice-{a,b}.md`.
+
+---

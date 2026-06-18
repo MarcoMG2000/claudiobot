@@ -1,49 +1,47 @@
 # Sesión actual
 
-- **Feature en curso:** `f11-wowhead-ingestion` (`in_progress`) — entrega en
-  2 slices encadenados; **Slice A cerrado y aprobado**, Slice B pendiente.
+- **Feature en curso:** ninguna — `f11-wowhead-ingestion` cerrada `done`.
+  Solo queda `f12-reranking` (`pending`, diferida `[LATER]`).
 - **Última actualización:** 2026-06-18
 - **Agente:** leader
 
-f0–f10 `done`. f11 en curso. Suite total tras Slice A: `./init.sh` exit 0,
-**277 passed + 2 skipped + 5 deselected** (+21 tests de Slice A; 1 warning =
-`StarletteDeprecationWarning` preexistente de f9 `test_api.py`, third-party,
-benigno).
+f0–f11 `done`. Con f11 el sistema puede construir un corpus real de wowhead
+(scraper respetuoso → JSONL → indexer f4 → retrieve → generate). Suite total:
+`./init.sh` exit 0, **297 passed + 2 skipped + 6 deselected** (1 warning
+preexistente de f9, third-party).
+- 2 skipped: integración pgvector + bge_m3 (f3/f4).
+- 6 deselected: 5 `@integration` de Ollama (f7) + 1 live-fetch de wowhead (f11).
 
 ## Bitácora
 
-- f0–f9 commiteadas (`4559ada` backlog f5–f8, `bb3429a` f9); f10 en 2 slices
-  (`53130c4`, `060f7db`).
-- **f11 aprobado** ("aprobado f11", entrega 2 slices encadenados). Leader
-  flipó `spec_ready` → `in_progress`.
-- **f11 Slice A** (fetcher + robots + rate-limit) — `implementer` → `reviewer`
-  APROBADO. Subpaquete `src/wowrag/ingest/wowhead/`: `base.py` (`Fetcher`
-  Protocol + errores + `FetchResult`), `fetcher.py` (`HttpxFetcher` lazy +
-  `FakeFetcher` que registra URLs pedidas), `robots.py` (`RobotsGate`, stdlib
-  `urllib.robotparser`, consultado ANTES de fetch, cache por host),
-  `throttle.py` (`RateLimiter`, clock inyectable). 5 campos `scrape_*` en
-  `config.py`. Tests prueban que una URL disallowed NUNCA se pide y que el
-  rate-limit se aplica con fake clock. ~793 líneas (~388 src, ~405 tests).
+- f0–f10 cerradas y commiteadas (`4559ada`, `bb3429a`, `53130c4`, `060f7db`).
+- **f11-wowhead-ingestion cerrada** en 2 slices encadenados:
+  - Slice A (`016148a`): fetcher + robots + rate-limit.
+  - Slice B (este commit): normalizer + pipeline + CLI; change-round que movió
+    `selectolax` a `requirements.txt` (precedente f9) para cubrir la lógica
+    core en CI. Ambos `reviewer` APROBADO; `implementer` flipó `f11 → done`.
 
-## Próximo paso — Slice B de f11
+## Próximo paso — solo queda `f12-reranking`
 
-- **Slice B**: `normalizer.py` (HTML→`Document` con `selectolax`, dep aislada
-  en `requirements-scrape.txt`, import perezoso → `ScrapeError`),
-  `pipeline.py` (fetch robots+rate-limited → normaliza → escribe corpus
-  `wowhead.jsonl`), `cli.py`/`__main__.py` (`python -m wowrag.ingest.wowhead`,
-  `main(argv, fetcher=None)` inyectable). Reqs restantes (normalización,
-  pipeline, CLI, round-trip por `JsonlCorpusLoader`). Tests con fixtures HTML
-  + `FakeFetcher`, cero red; fetch real `@integration`.
-- Tras Slice B: `reviewer` (puerta final) → `implementer` flipa `f11 → done`
-  → leader mueve resumen a `history.md`.
+- **`f12-reranking`** (`pending`, `[LATER]`, depende de f5 ✅) — reranker
+  cross-encoder que reordena el top-k del retriever antes de generar.
+  Encaja entre f5 (retrieve) y f6/f8 (prompt/generate) como capa opcional
+  swappable. Probablemente otra dep ML pesada (cross-encoder) aislada +
+  `@integration`, con un fake para los tests unitarios.
 
-Después de f11 solo queda **`f12-reranking`** (`pending`, depende de f5).
+Cuando el humano quiera, el leader lanza spec-author → `spec_ready` → ⏸ puerta
+de aprobación humana.
 
 ## Riesgos / notas
 
-- f11 desbloquea la validación end-to-end con corpus real; hasta cerrarlo todo
-  sigue probado con fakes (sin red, sin Ollama/pgvector/bge-m3 vivos).
-- `selectolax` (Slice B) será la primera dep de scraping; aislada en
-  `requirements-scrape.txt`, fuera de init.sh, import perezoso.
-- Warning de Starlette/FastAPI (`test_api.py`) es preexistente y third-party;
-  candidato a silenciar con `filterwarnings` más adelante, no bloqueante.
+- **Seguimiento menor (no bloqueante):** `src/wowrag/ingest/wowhead/fetcher.py:40`
+  + `tests/test_wowhead_fetcher.py:121` aún citan `requirements-scrape.txt`
+  (eliminado en el change-round) en el error-path de httpx-ausente — defensivo
+  e inalcanzable. Alinear el hint con `requirements.txt` en una limpieza futura.
+- Validación end-to-end REAL aún pendiente de ejecutarse: requiere
+  `requirements-pg.txt` + `requirements-ml.txt` + `requirements-llm.txt`
+  instalados, Postgres+pgvector, FlagEmbedding/GPU, Ollama vivo, y correr el
+  scraper de f11 contra wowhead para generar el corpus. Todo el código está
+  probado con fakes/fixtures; los tests `@integration` no se ejecutan en CI.
+- Warning de Starlette/FastAPI (`test_api.py`): preexistente, third-party,
+  candidato a silenciar con `filterwarnings`.

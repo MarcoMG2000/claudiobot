@@ -2,13 +2,12 @@
 
 f11 is the only part of the system that contacts a real external service. This
 subpackage isolates that flow: a ``Fetcher`` swap point (HTTP GET only), robots
-compliance, and rate limiting. Slice B adds the HTML normalizer, the pipeline
-and the CLI.
+compliance, rate limiting, an HTML normalizer, the ingest pipeline and a CLI.
 
-Importing this package does NOT eagerly import ``httpx`` or the HTML parser:
-those are lazy imports inside ``HttpxFetcher.__init__`` / the (Slice B)
-normalizer, so the module stays importable network-free for the default test
-suite (R25).
+Importing this package does NOT eagerly import ``httpx`` or the HTML parser
+(``selectolax``): those are lazy imports inside ``HttpxFetcher.__init__`` /
+``WowheadNormalizer.__init__``, so the module stays importable network-free and
+parser-free for the default test suite (R25).
 """
 
 from wowrag.ingest.wowhead.base import (
@@ -18,7 +17,10 @@ from wowrag.ingest.wowhead.base import (
     IngestError,
     ScrapeError,
 )
+from wowrag.ingest.wowhead.cli import main
 from wowrag.ingest.wowhead.fetcher import FakeFetcher, HttpxFetcher
+from wowrag.ingest.wowhead.normalizer import WowheadNormalizer
+from wowrag.ingest.wowhead.pipeline import IngestReport, WowheadIngestor
 from wowrag.ingest.wowhead.robots import RobotsGate
 from wowrag.ingest.wowhead.throttle import RateLimiter
 
@@ -32,4 +34,8 @@ __all__ = [
     "FakeFetcher",
     "RobotsGate",
     "RateLimiter",
+    "WowheadNormalizer",
+    "WowheadIngestor",
+    "IngestReport",
+    "main",
 ]

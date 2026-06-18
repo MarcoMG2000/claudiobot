@@ -8,3 +8,10 @@ pytest==9.0.3
 fastapi==0.137.1
 uvicorn==0.49.0
 httpx==0.28.1
+# f11-wowhead-ingestion: HTML parser for the wowhead normalizer. Promoted here
+# (from the old requirements-scrape.txt) during review so the default suite
+# exercises WowheadNormalizer's HTML->Document logic. selectolax is a lightweight
+# binary-wheel parser (no C toolchain / GPU / DB / live service), so unlike
+# torch/sentence-transformers/psycopg it belongs in the default deps — same
+# rationale as the f9 httpx/fastapi promotion.
+selectolax==0.4.10

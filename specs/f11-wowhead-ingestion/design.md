@@ -304,9 +304,28 @@ scrape_corpus_path: str = "data/corpus"     # directorio de salida del JSONL (R2
 
 Decisión: **`selectolax`** (`pip install selectolax`) — una única dependencia con
 wheels precompiladas, parser HTML rápido y selectores CSS suficientes para extraer
-título, secciones y limpiar boilerplate. Aislada en `requirements-scrape.txt`
-(R24) e importada lazy (R25). Si el implementer prefiere `beautifulsoup4`+`lxml`,
-es aceptable siempre que se respeten R24/R25/R31 y los selectores cubran R12–R16.
+título, secciones y limpiar boilerplate. Importada lazy (R25). Si el implementer
+prefiere `beautifulsoup4`+`lxml`, es aceptable siempre que se respeten R25/R31 y
+los selectores cubran R12–R16.
+
+> **Desviación registrada en review (change-round 1).** El plan original aislaba
+> `selectolax` en `requirements-scrape.txt`, FUERA de `init.sh` (R24). El revisor
+> de Slice B detectó que esto deja la lógica central de f11 (normalizador HTML →
+> `Document`: R12/R14/R15, decisión de R16 y el round-trip real R20) **sin
+> cobertura efectiva en CI**: los tests parser-backed quedaban *skipped* porque
+> `init.sh` no instalaba el parser, incumpliendo R29 para la parte central. Por eso
+> `selectolax==0.4.10` se **movió a `requirements.txt`** (pineado) y se eliminó
+> `requirements-scrape.txt`. Razonamiento: (1) `selectolax` es un parser **ligero**
+> de wheel binario (sin toolchain C, sin GPU/DB/servicio vivo), categóricamente
+> distinto de torch/sentence-transformers/psycopg/Ollama —que siguen diferidos por
+> su peso o por exigir servicios reales—; (2) **precedente f9**: httpx/fastapi/uvicorn
+> se promovieron DEFERRED→PINNED por la misma razón (la suite por defecto ejercita
+> la app vía TestClient); (3) `docs/verification.md` exige que cada `R<n>` tenga un
+> test que **pase** (no *skipped*). El import **sigue siendo lazy** dentro de
+> `WowheadNormalizer.__init__` (R25) y un parser ausente sigue elevando `ScrapeError`
+> (R31): el patrón defensivo se mantiene aunque ahora sea dep por defecto. R24 queda
+> **relajado** para `selectolax` (se reinterpreta: aislar lo *pesado*, no lo ligero
+> que la suite por defecto necesita).
 
 ```python
 class WowheadNormalizer:
@@ -517,7 +536,7 @@ fixtures, `tmp_path` para salida; **nada de red** salvo los `@integration`.
 | Alternativa | Razón de descarte |
 |-------------|-------------------|
 | Pasar `Document`s en memoria al `IndexingPipeline` (sin JSONL) | Acopla scraping (red, lento) a indexado (GPU/DB); re-indexar exigiría re-escrapear; rompe la separación offline. JSONL reutiliza el camino f1+f4 sin tocarlo (§0) |
-| Poner el parser HTML en `requirements.txt` / `init.sh` | Violaría la convención de aislamiento (ML/PG/LLM viven en sus propios `requirements-*.txt`) y `test_requirements_pinned.py`; haría `init.sh` más pesado. Va en `requirements-scrape.txt` con import lazy (R24, R25) |
+| ~~Poner el parser HTML en `requirements.txt` / `init.sh`~~ (decisión revertida en review) | Plan original: aislar en `requirements-scrape.txt` para no engordar `init.sh`. **Revertido en change-round 1** (ver §8.1): aislarlo dejaba la lógica central de f11 sin cobertura efectiva en CI (tests parser-backed *skipped*, R29 incumplido). `selectolax` es ligero (wheel binario, sin toolchain C) y, como httpx/fastapi en f9, lo necesita la suite por defecto → va en `requirements.txt` pineado, con import lazy + `ScrapeError` (R25, R31). El aislamiento sigue valiendo para lo PESADO (torch/sentence-transformers/psycopg/Ollama) |
 | `Fetcher` que también hace robots + rate-limit | Mezcla responsabilidades; el revisor rechaza HTTP+robots+throttle en una clase. Robots y rate-limit son colaboradores que envuelven al `Fetcher` en la pipeline (§3, §9) |
 | Implementar el chequeo de robots a mano (parseo propio) | `urllib.robotparser` de la stdlib ya lo hace correctamente y sin dependencia nueva (R5) |
 | `requests` como cliente HTTP | `httpx` ya está pineado (f9) y es el cliente del proyecto; añadir `requests` duplicaría dependencias (§4) |
