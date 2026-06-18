@@ -17,6 +17,7 @@ EXPECTED_DEFAULTS = {
     "default_persona": "simple",
     "vector_table": "chunks",       # R30
     "distance_metric": "cosine",    # R31
+    "eval_dataset_path": None,      # R28 (f10-evaluation-harness)
     "cors_allow_origins": ["*"],            # R14 (f9-http-api)
     "cors_allow_credentials": False,        # R14 (f9-http-api)
     "cors_allow_methods": ["*"],            # R14 (f9-http-api)
@@ -112,6 +113,17 @@ def test_ollama_url_and_llm_model_overridable_from_env(monkeypatch):  # R13 (f7-
     settings = Settings(_env_file=None)
     assert settings.ollama_url == "http://custom-ollama:11434"
     assert settings.llm_model == "llama3:8b"
+
+
+def test_eval_dataset_path_default_is_none_and_overridable(monkeypatch):  # R28 (f10-evaluation-harness)
+    # R28: f10 adds the optional eval_dataset_path field with a sane default
+    # (None -> committed fixture) WITHOUT requiring env for the default path,
+    # and WITHOUT altering any existing key. The default-assert lives in
+    # EXPECTED_DEFAULTS above; this test closes the env-override gap.
+    assert Settings(_env_file=None).eval_dataset_path is None
+    monkeypatch.setenv("EVAL_DATASET_PATH", "/data/custom_golden.jsonl")
+    settings = Settings(_env_file=None)
+    assert settings.eval_dataset_path == "/data/custom_golden.jsonl"
 
 
 def test_cors_allow_origins_override_constructor():  # R14 (f9-http-api)

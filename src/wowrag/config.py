@@ -33,6 +33,13 @@ class Settings(BaseSettings):
     vector_table: str = "chunks"      # nombre de la tabla de chunks en pgvector
     distance_metric: str = "cosine"   # métrica de similitud del almacén vectorial
 
+    # Ruta opcional del dataset dorado de evaluación (f10). None -> el fixture
+    # commiteado en src/wowrag/eval/data/golden.jsonl. Campo nuevo y opcional con
+    # default sano; NO altera ninguna clave existente ni exige entorno para el
+    # camino por defecto (R28). La CLI de eval lo usa como default cuando no se
+    # pasa --dataset.
+    eval_dataset_path: str | None = None
+
     # CORS para el frontend in-game futuro (f9). No hardcodeados en la app: el
     # middleware los lee desde aquí, configurables por entorno. El comodín "*" es
     # solo el default explícito y documentado; se puede cerrar a una lista de

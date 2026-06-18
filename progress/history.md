@@ -262,3 +262,37 @@
   `progress/review_f9-http-api.md`.
 
 ---
+
+## f10-evaluation-harness — Evaluation harness (golden Q&A, faithfulness, abstention)
+
+- **Fecha de cierre:** 2026-06-17
+- **Estado final:** `done`
+- **Entrega:** 2 slices encadenados (el humano eligió chained PRs por presupuesto):
+  - **Slice A** (commit `53130c4`): paquete `src/wowrag/eval/` — `GoldenItem` +
+    loader JSONL (nombra la línea ofensora en error) + fixture
+    `data/golden.jsonl`; métricas hit-rate (intersección de URLs) /
+    faithfulness-proxy (`0.5·citado + 0.5·overlap léxico` vs `reference_answer`,
+    solo-stdlib, sin LLM) / abstención (precision/recall sobre out-of-corpus);
+    runner con orquestador inyectable. Reviewer APROBADO. Reqs R1–R21/R27/R29 +
+    R30 parcial.
+  - **Slice B** (este commit): CLI `python -m wowrag.eval` (`--dataset`/`--out`),
+    modelo `EvalReport` + artefacto JSON, composición perezosa del orquestador
+    real (reutiliza `build_orchestrator` de f9), `main(argv, orchestrator=...)`
+    inyectable. Reviewer APROBADO (puerta final de feature). Reqs R22–R26/R28 +
+    R30 final.
+- **Decisiones de diseño:** faithfulness default = proxy determinista (LLM-judge
+  opcional inyectable, solo la variante real-Ollama es `@integration`); modelos
+  de f10 viven en `src/wowrag/eval/` (NO en `models.py` global); sin deps nuevas
+  en el path por defecto; importar `wowrag.eval`/`wowrag.eval.cli` NO carga
+  torch/psycopg/httpx/Ollama (invariante de aislamiento verificado por test en
+  subproceso; la composición real falla en runtime por ML ausente, no en import).
+- **Frontera de alcance:** evalúa el servicio f8 con dataset golden + fakes; no
+  scrapea (f11) ni reordena (f12); no cambia la lógica de f5–f9 (solo importa).
+  `config.py` solo recibe un campo aditivo (`eval_dataset_path`).
+- **Trazabilidad:** R1–R30 cubiertos por ≥1 test ejecutable (45 tests de f10 en
+  el suite por defecto, ninguno skipped/deselected).
+- **Tests:** `./init.sh` exit 0, **256 passed + 2 skipped + 5 deselected**.
+- **Reports:** `progress/impl_f10-slice-{a,b}.md`,
+  `progress/review_f10-slice-{a,b}.md`.
+
+---

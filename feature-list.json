@@ -108,7 +108,7 @@
         {
             "id": "f10-evaluation-harness",
             "title": "Evaluation harness (golden Q&A, faithfulness, abstention)",
-            "status": "in_progress",
+            "status": "done",
             "sdd": true,
             "depends_on": ["f8-rag-orchestrator"],
             "acceptance": "Golden Q&A dataset; metrics for retrieval hit-rate, answer faithfulness/groundedness, and correct abstention on out-of-corpus questions; runnable as a script/report."

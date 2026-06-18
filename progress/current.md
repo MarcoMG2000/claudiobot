@@ -1,43 +1,43 @@
 # Sesión actual
 
-- **Feature en curso:** `f10-evaluation-harness` (`in_progress`) — entrega en
-  2 slices encadenados; **Slice A cerrado y aprobado**, Slice B pendiente.
+- **Feature en curso:** ninguna — `f10-evaluation-harness` cerrada `done`.
+  Todas las features no-diferidas (`f0`–`f10`) están `done`.
 - **Última actualización:** 2026-06-17
 - **Agente:** leader
 
-f0–f9 `done`. f10 en curso. Suite total tras Slice A: `./init.sh` exit 0,
-**245 passed + 2 skipped + 5 deselected** (+35 tests de Slice A).
+Sistema RAG completo (ingesta offline + servicio online + API HTTP + harness
+de evaluación). Suite total: `./init.sh` exit 0, **256 passed + 2 skipped +
+5 deselected**.
+- 2 skipped: ficheros de integración pgvector + bge_m3.
+- 5 deselected: tests `@integration` de Ollama (`test_llm_ollama.py`),
+  excluidos por `-m "not integration"`.
 
 ## Bitácora
 
 - f0–f9 cerradas y commiteadas (`4559ada` backlog f5–f8, `bb3429a` f9).
-- **f10 aprobado** ("aprobado f10", entrega 2 slices encadenados). Leader
-  flipó `spec_ready` → `in_progress`.
-- **f10 Slice A** (dataset + métricas + runner + tests) — `implementer` →
-  `reviewer` APROBADO. Paquete `src/wowrag/eval/` (modelos propios, NO en
-  `models.py` global): `GoldenItem` + loader JSONL + fixture
-  `data/golden.jsonl`; métricas hit-rate / faithfulness-proxy (solo-stdlib,
-  sin LLM) / abstención precision-recall; runner con orquestador inyectable
-  (`FakeOrchestrator`, cero DB/ML/Ollama). Reqs Slice A (R1–R21/R27/R29 +
-  R30 parcial) cubiertos. ~1058 líneas (incl. ~595 de tests; sobre el
-  estimado ~430 — los tests inflaron el conteo, no bloqueante).
+- **f10-evaluation-harness cerrada** en 2 slices encadenados:
+  - Slice A (`53130c4`): dataset + métricas + runner.
+  - Slice B (este commit): CLI `python -m wowrag.eval` + `EvalReport` JSON +
+    composición perezosa del orquestador real.
+  - Ambos `reviewer` APROBADO; `implementer` flipó `f10 → done`.
 
-## Próximo paso — Slice B de f10
+## Próximo paso — solo quedan features diferidas `[LATER]`
 
-- **Slice B** (~140 líneas): CLI `python -m wowrag.eval` (`--dataset`,
-  `--out`) + `EvalReport` JSON + composición perezosa del orquestador real
-  (reutiliza `build_orchestrator` de f9, import perezoso). Reqs R22–R26/R28 +
-  R30 final. Tests con `main(argv, orchestrator=...)` inyectable.
-- Tras Slice B: `reviewer` (puerta final de feature) → `implementer` flipa
-  `f10 → done` → leader mueve resumen a `history.md`.
+- **`f11-wowhead-ingestion`** (`pending`, depende de f1) — scraper real de
+  wowhead → schema `Document`, respetando robots/rate-limits. **Desbloquea la
+  validación end-to-end con corpus real** (hasta ahora el path online solo se
+  ha probado con fakes).
+- **`f12-reranking`** (`pending`, depende de f5) — reranker cross-encoder para
+  mejorar el orden del top-k antes de generar.
 
-Después de f10 solo quedan diferidas: `f11-wowhead-ingestion` (scraper real,
-necesario para validar el path online con corpus real) y `f12-reranking`.
+Ambas marcadas `[LATER]` en el roadmap. Cuando el humano quiera arrancar una,
+el leader lanza spec-author → `spec_ready` → ⏸ puerta de aprobación humana.
 
 ## Riesgos / notas
 
-- Slice A entró ~1058 líneas (con tests) vs ~430 estimado. Slice B (~140)
-  mantiene el total de f10 razonable; el budget de 400 por PR aplica al diff
-  revisable por slice.
-- Path online aún validado solo con fakes (sin corpus wowhead hasta f11; sin
-  Ollama/pgvector/bge-m3 vivos — `@integration`).
+- El path online (retrieve→prompt→generate) y el harness de evaluación solo se
+  han validado con **fakes**: no hay corpus real de wowhead (f11) ni
+  Ollama/pgvector/bge-m3 vivos en CI (tests `@integration`). La primera
+  ejecución real requerirá `requirements-pg.txt` + `requirements-ml.txt` +
+  `requirements-llm.txt`, un Postgres+pgvector, FlagEmbedding/GPU y un Ollama
+  vivo, más un corpus indexado.

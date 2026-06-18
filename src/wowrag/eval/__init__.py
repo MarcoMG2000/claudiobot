@@ -5,15 +5,14 @@ dataset through the pipeline and aggregates metrics into a report. Lives in its
 own package (like ``index/``) and depends only on public interfaces.
 
 Public surface (R30): consumers import from ``wowrag.eval``, not from the internal
-modules. Importing this package never pulls torch/psycopg/httpx — the heavy real
-composition is lazy and lives in the CLI (Slice B).
-
-NOTE (Slice A): the CLI entrypoint (``main``) is added in Slice B; this re-export
-set covers the deterministic core only.
+modules. Importing this package never pulls torch/psycopg/httpx — the CLI's real
+composition (``build_orchestrator``) is lazy inside ``cli._build_orchestrator``, so
+re-exporting ``main`` here is import-safe (R26).
 """
 
 from __future__ import annotations
 
+from wowrag.eval.cli import main
 from wowrag.eval.dataset import GoldenDatasetError, load_golden
 from wowrag.eval.harness import EvalHarness
 from wowrag.eval.metrics import (
@@ -31,6 +30,7 @@ __all__ = [
     "load_golden",
     "GoldenDatasetError",
     "EvalHarness",
+    "main",
     "retrieval_hit_rate",
     "faithfulness_proxy",
     "faithfulness_proxy_mean",

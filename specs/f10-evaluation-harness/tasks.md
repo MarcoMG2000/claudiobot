@@ -129,7 +129,7 @@
 
 ### Implementación
 
-- [ ] **T9 — (Opcional) Campo `eval_dataset_path` en `Settings`.**
+- [x] **T9 — (Opcional) Campo `eval_dataset_path` en `Settings`.**
   Ver `design.md` §9 y §1. O bien añadir a `src/wowrag/config.py` UN campo nuevo
   `eval_dataset_path: str | None = None` (sin tocar claves existentes), o bien
   omitirlo y pasar la ruta solo por `--dataset`. Cualquiera de las dos satisface
@@ -137,7 +137,7 @@
   defecto.
   _(Cubre R28)_
 
-- [ ] **T10 — CLI `eval/cli.py` + `eval/__main__.py` (composición perezosa).**
+- [x] **T10 — CLI `eval/cli.py` + `eval/__main__.py` (composición perezosa).**
   Crear `src/wowrag/eval/cli.py` con `main(argv=None, orchestrator=None) -> int`
   (ver §8): `argparse` con `--dataset` (default `None` → fixture) y `--out`
   (artefacto JSON); `load_golden(args.dataset)`; usa el `orchestrator` inyectado o,
@@ -149,7 +149,7 @@
   `python -m wowrag.eval` funcione (R24). Cero imports pesados al tope del módulo.
   _(Cubre R24, R25, R26)_
 
-- [ ] **T11 — Finalizar exports de `eval/__init__.py`.**
+- [x] **T11 — Finalizar exports de `eval/__init__.py`.**
   Asegurar que `src/wowrag/eval/__init__.py` re-exporta el conjunto público final
   (`GoldenItem`, `load_golden`, `EvalHarness`, `EvalReport`, funciones de métricas)
   con `__all__`, sin importar la CLI de forma que arrastre dependencias pesadas
@@ -158,7 +158,7 @@
 
 ### Tests (Slice B)
 
-- [ ] **T-B-tests — `tests/test_eval_cli.py`.**
+- [x] **T-B-tests — `tests/test_eval_cli.py`.**
   Crear (ver §10), `not integration`, con `FakeOrchestrator` inyectado y `tmp_path`:
   - `test_main_prints_summary`: `main([], orchestrator=fake)` imprime resumen y
     retorna 0 (R24).
@@ -176,7 +176,7 @@
 
 ## Cierre
 
-- [ ] **Z1 — Verificación final.** Ejecutar `./init.sh` y confirmar exit 0 con la
+- [x] **Z1 — Verificación final.** Ejecutar `./init.sh` y confirmar exit 0 con la
   suite `not integration` en verde. Comprobar que:
   - Todos los `R<n>` de `requirements.md` (R1–R30) tienen al menos un test.
   - `from wowrag.eval import GoldenItem, load_golden, EvalHarness, EvalReport`
