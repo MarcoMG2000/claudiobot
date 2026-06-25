@@ -124,7 +124,7 @@
         {
             "id": "f12-reranking",
             "title": "[LATER] Reranking",
-            "status": "pending",
+            "status": "spec_ready",
             "sdd": true,
             "depends_on": ["f5-retriever"],
             "acceptance": "Deferred. Cross-encoder reranker to improve top-k ordering before generation."
