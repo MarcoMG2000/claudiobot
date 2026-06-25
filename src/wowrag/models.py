@@ -3,7 +3,8 @@
 This module is the single home for all data-layer pydantic models.
 ``Document`` is created in f1; ``Chunk`` in f2; ``RetrievedChunk`` and
 ``RetrievalResult`` in f5; ``Source`` and ``BuiltPrompt`` in f6;
-``Answer`` and ``AnswerMetadata`` in f8 (the RAG orchestrator).
+``Answer`` and ``AnswerMetadata`` in f8 (the RAG orchestrator);
+``RerankResult`` in f12 (the reranking layer).
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ __all__ = [
     "BuiltPrompt",     # f6
     "AnswerMetadata",  # f8
     "Answer",          # f8
+    "RerankResult",    # f12
 ]
 
 
@@ -157,3 +159,17 @@ class Answer(BaseModel):
     sources: list[Source]       # citas [n]; [] si abstención (R3, R16, R19, R20)
     abstained: bool             # True si se abstuvo por below_threshold (R14)
     metadata: AnswerMetadata    # modelo, persona, scores (R4-R7, R17)
+
+
+class RerankResult(BaseModel):
+    """Resultado de una operación de reranking (f12).
+
+    chunks: lista de RetrievedChunk en el orden producido por el reranker
+            (puede diferir del orden de score-desc del retriever).
+    top_n: número efectivo de chunks devueltos (len(chunks)).
+    reranker_model: identificador del modelo usado; None para PassthroughReranker.
+    """
+
+    chunks: list[RetrievedChunk]   # en el orden producido por el reranker (R3)
+    top_n: int                     # número de chunks devueltos (R3, R4)
+    reranker_model: str | None     # None para PassthroughReranker (R3, R7)

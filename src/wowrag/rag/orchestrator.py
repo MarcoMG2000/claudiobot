@@ -6,6 +6,10 @@ interfaces (Retriever, PromptBuilder, LLMProvider), so it is testable with
 fakes/stubs without Postgres, GPU, Ollama, or network (R9, R22). Zero DB/ML/HTTP
 imports. The abstention decision consumes f5's ``below_threshold`` signal — it
 does NOT recompute the threshold (R18, R21).
+
+f12 adds an optional Reranker that operates between the Retriever and the
+PromptBuilder. When present and below_threshold=False, it reorders the chunks
+before building the prompt (R19-R23).
 """
 
 from __future__ import annotations
@@ -18,6 +22,7 @@ from wowrag.models import Answer, AnswerMetadata, RetrievalResult
 from wowrag.personas import Persona
 from wowrag.rag.base import OrchestratorError
 from wowrag.retrieval.base import Retriever
+from wowrag.retrieval.reranker import Reranker
 
 # Abstention message — owned by f8 (f5 only exposed the boolean signal). (R15, R18)
 _ABSTENTION_MESSAGE = (
@@ -40,11 +45,13 @@ class DefaultRagOrchestrator:
         prompt_builder: PromptBuilder,
         llm: LLMProvider,
         settings: Settings | None = None,
+        reranker: Reranker | None = None,  # f12 (R19) — optional, None = no reranking
     ) -> None:
         self._retriever = retriever
         self._prompt_builder = prompt_builder
         self._llm = llm
         self._settings = settings or Settings()
+        self._reranker = reranker  # None -> flujo existente sin cambios (R22)
 
     def answer(self, query: str, persona: Persona | None = None) -> Answer:
         """Run the RAG pipeline for ``query`` and return a structured ``Answer``.
@@ -104,6 +111,25 @@ class DefaultRagOrchestrator:
                     max_score=result.max_score,              # R6, R17
                     scores=scores,                           # R7
                 ),
+            )
+
+        # f12 (R20, R21, R22): apply reranking when reranker is set and we have
+        # results above threshold. When below_threshold=True the short-circuit above
+        # already returned — so we are always in the "have results" branch here.
+        # When self._reranker is None we skip this entirely (R22).
+        if self._reranker is not None:
+            rerank_result = self._reranker.rerank(
+                query,
+                result.chunks,
+                top_n=self._settings.reranker_top_n,
+            )
+            # Build a temporary RetrievalResult with reranked chunks (R20).
+            # max_score and below_threshold come from the original result so
+            # the Answer contract (metadata) is unchanged (R23).
+            result = RetrievalResult(
+                chunks=rerank_result.chunks,
+                max_score=result.max_score,
+                below_threshold=result.below_threshold,
             )
 
         # R11: build the prompt with the resolved persona. PersonaNotFoundError

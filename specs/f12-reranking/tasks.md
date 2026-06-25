@@ -18,7 +18,7 @@
 
 ## Implementación
 
-- [ ] **T1 — Modelo `RerankResult` en `models.py`.**
+- [x] **T1 — Modelo `RerankResult` en `models.py`.**
   Editar `src/wowrag/models.py` para añadir (ver `design.md` §3):
   - `RerankResult(BaseModel)` con `chunks: list[RetrievedChunk]`, `top_n: int`
     y `reranker_model: str | None`.
@@ -26,7 +26,7 @@
   - Actualizar el docstring del módulo para reflejar que f12 introduce `RerankResult`.
   _(Cubre R3, R4, R5)_
 
-- [ ] **T2 — Interfaz `Reranker` y tres implementaciones en `retrieval/reranker.py`.**
+- [x] **T2 — Interfaz `Reranker` y tres implementaciones en `retrieval/reranker.py`.**
   Crear `src/wowrag/retrieval/reranker.py` con (ver `design.md` §4):
   - `from __future__ import annotations` en la cabecera.
   - `Reranker` Protocol con método
@@ -42,13 +42,13 @@
     `reranker_model="fake"`; cero imports ML.
   _(Cubre R1, R2, R6, R7, R8, R9, R10, R11, R12, R13, R14, R15, R26, R27)_
 
-- [ ] **T3 — Re-exportar desde `retrieval/__init__.py`.**
+- [x] **T3 — Re-exportar desde `retrieval/__init__.py`.**
   Editar `src/wowrag/retrieval/__init__.py` para añadir imports y actualizar
   `__all__` con: `Reranker`, `PassthroughReranker`, `CrossEncoderReranker`,
   `FakeCrossEncoderReranker`.
   _(Cubre R28)_
 
-- [ ] **T4 — Tres campos de configuración en `config.py`.**
+- [x] **T4 — Tres campos de configuración en `config.py`.**
   Editar `src/wowrag/config.py` para añadir en `Settings` (ver `design.md` §6):
   - `reranker_enabled: bool = False`
   - `reranker_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"`
@@ -56,7 +56,7 @@
   Con comentario que identifica estos campos como pertenecientes a f12.
   _(Cubre R16, R17, R18)_
 
-- [ ] **T5 — Integrar el reranker en `DefaultRagOrchestrator`.**
+- [x] **T5 — Integrar el reranker en `DefaultRagOrchestrator`.**
   Editar `src/wowrag/rag/orchestrator.py` (ver `design.md` §5):
   - Añadir `reranker: Reranker | None = None` como último parámetro de
     `__init__` (después de `settings`). Guardar en `self._reranker`.
@@ -75,7 +75,7 @@
 
 ## Tests
 
-- [ ] **T6 — `tests/test_reranker.py`** (unitarios — sin ML).
+- [x] **T6 — `tests/test_reranker.py`** (unitarios — sin ML).
 
   ### PassthroughReranker
   - `test_passthrough_preserves_order`: dado `[c1, c2, c3]`, `rerank` devuelve los
@@ -127,7 +127,7 @@
   - `test_exports_rerank_result_from_models`: `from wowrag.models import RerankResult`
     funciona. _(R28)_
 
-- [ ] **T7 — Test de integración en `tests/test_reranker.py`** (con ML real).
+- [x] **T7 — Test de integración en `tests/test_reranker.py`** (con ML real).
   - `test_cross_encoder_reranks_correctly` marcado con `@pytest.mark.integration`:
     - Construir `CrossEncoderReranker("cross-encoder/ms-marco-MiniLM-L-6-v2")`.
     - Crear 3 `RetrievedChunk` con textos relevantes e irrelevantes para una query
@@ -141,7 +141,7 @@
 
 ## Cierre
 
-- [ ] **Z1 — Verificación final.** Ejecutar `./init.sh` y confirmar exit 0 con la
+- [x] **Z1 — Verificación final.** Ejecutar `./init.sh` y confirmar exit 0 con la
   suite `not integration` en verde. Comprobar que:
   - Todos los `R<n>` de `requirements.md` (R1–R28) tienen al menos un test.
   - `from wowrag.retrieval import Reranker, PassthroughReranker, CrossEncoderReranker,

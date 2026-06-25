@@ -65,6 +65,12 @@ class Settings(BaseSettings):
     scrape_max_pages: int = 100  # tope de páginas por ejecución (defensa)
     scrape_corpus_path: str = "data/corpus"  # directorio de salida del JSONL (R21)
 
+    # Reranking (f12). Campos opcionales con defaults desactivados; no rompen
+    # ningún comportamiento existente porque reranker_enabled=False es el default.
+    reranker_enabled: bool = False                              # R16
+    reranker_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"  # R17
+    reranker_top_n: int = 3                                    # R18
+
 
 def default_persona(settings: Settings | None = None) -> Persona:
     """Resolve the default persona from ``Settings.default_persona``.
