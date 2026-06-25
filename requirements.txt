@@ -1,6 +1,6 @@
 # Pinned runtime + test dependencies. Heavy deps for later features
 # (torch, sentence-transformers, psycopg) stay deferred and use lazy imports.
-pydantic-settings==2.14.1
+pydantic-settings==2.14.2
 pyyaml==6.0.3
 pytest==9.0.3
 # f9-http-api: HTTP layer (FastAPI + ASGI server) and the HTTP client that
